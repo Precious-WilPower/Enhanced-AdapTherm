@@ -1,0 +1,3450 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Adaptherm - Individual Level</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #f5f5f5;
+      color: #333;
+    }
+    
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      background-color: white;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      overflow-x: hidden;
+    }
+    
+    h1, h2, h3 {
+      color: #1565c0;
+    }
+    
+    h1 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    
+    /* Tab styling */
+    .tabs {
+      display: flex;
+      border-bottom: 1px solid #ccc;
+      margin-bottom: 20px;
+    }
+    
+    .tab-button {
+      background: none;
+      border: none;
+      padding: 10px 20px;
+      cursor: pointer;
+      font-size: 16px;
+    }
+    
+    .tab-button.active {
+      border-bottom: 3px solid #1565c0;
+      font-weight: bold;
+      color: #1565c0;
+    }
+    
+    .tab-content {
+      display: none;
+    }
+    
+    .tab-content.active {
+      display: block;
+    }
+    
+    /* Emergency panel with deep blue background */
+    .emergency-panel {
+      background-color: #1a3a5f; /* Deep blue color */
+      color: white;
+      padding: 15px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+    }
+    
+    .emergency-panel h3 {
+      color: white;
+      margin-top: 0;
+    }
+    
+    .emergency-panel p {
+      font-size: 15px;
+      line-height: 1.4;
+      margin-bottom: 8px;
+      color: white;
+    }
+    /* Streamlined emergency panel layout */
+    .symptom-buttons {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-bottom: 12px;
+      max-width: 100%;
+      justify-content: center;
+    }
+    
+    .symptom-button {
+      background-color: #ffffff;
+      border: 1px solid #03a9f4;
+      border-radius: 20px;
+      padding: 6px 12px;
+      cursor: pointer;
+      font-size: 13px;
+      transition: all 0.2s;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      white-space: nowrap;
+    }
+    
+    .symptom-button:hover {
+      background-color: #e1f5fe;
+      transform: translateY(-2px);
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    
+    .symptom-button.active {
+      background-color: #03a9f4;
+      color: white;
+      border-color: #0277bd;
+    }
+    
+    /* Contained text entry */
+    .custom-description {
+      width: 90%;
+      max-width: 600px;
+      padding: 8px 12px;
+      border: 2px solid #81d4fa;
+      border-radius: 4px;
+      margin: 5px auto 10px;
+      font-family: inherit;
+      resize: none;
+      height: 36px;
+      font-size: 14px;
+      display: block;
+    }
+    
+    .typing-indicator {
+      font-size: 12px;
+      color: #e1f5fe;
+      margin-top: -5px;
+      margin-bottom: 10px;
+      visibility: hidden;
+      text-align: left;
+    }
+    
+    .typing-indicator.visible {
+      visibility: visible;
+    }
+
+    .recommendations {
+      background-color: #f8f9fa;
+      border-radius: 4px;
+      padding: 15px;
+      border: 1px solid #e2e6ea;
+      margin-bottom: 20px;
+    }
+    
+    .emergency-panel .recommendations {
+      background-color: #25517f;
+      border-color: #1a3a5f;
+    }
+    
+    .recommendations h4 {
+      margin-top: 0;
+      color: #343a40;
+      font-size: 15px;
+    }
+    
+    .emergency-panel .recommendations h4 {
+      color: white;
+    }
+    
+    .recommendations ul {
+      padding-left: 20px;
+    }
+    
+    .recommendations li {
+      margin-bottom: 5px;
+      line-height: 1.4;
+    }
+    
+    .emergency-panel .recommendations li {
+      color: white;
+    }
+    
+    /* Sensory wheel container */
+    .sensory-content {
+      display: flex;
+      flex-direction: row;
+      flex-wrap: wrap;
+      gap: 20px;
+      justify-content: center;
+    }
+    
+    .wheel-container {
+      width: 500px;
+      height: 500px;
+      position: relative;
+    }
+    
+    .sensory-wheel-svg {
+      width: 100%;
+      height: auto;
+    }
+
+    /* Clickable elements styling */
+    .section-path {
+      transition: all 0.2s;
+      cursor: pointer;
+    }
+    
+    .section-path:hover {
+      filter: brightness(1.1);
+      transform: scale(1.01);
+      transform-origin: center;
+    }
+    
+    .wheel-hub {
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    
+    .wheel-hub:hover {
+      filter: brightness(1.1);
+      transform: scale(1.05);
+      transform-origin: center;
+    }
+    
+    /* Enhanced spoke styling - major change to improve clickability */
+    .spoke-clickable-area {
+      stroke-width: 20px;
+      stroke-opacity: 0.1;
+      cursor: pointer;
+      transition: stroke-opacity 0.2s;
+    }
+    
+    .spoke-clickable-area:hover {
+      stroke-opacity: 0.3;
+    }
+    
+    .spoke {
+      stroke-width: 2px;
+      transition: stroke-width 0.2s;
+    }
+    
+    .spoke-group:hover .spoke {
+      stroke-width: 3px;
+    }
+    
+    .spoke, .spoke-group {
+      filter: none !important;
+    }
+    
+    /* Breakthrough lines styling */
+    .breakthrough-line {
+      cursor: pointer;
+      transition: opacity 0.3s, stroke-width 0.3s;
+    }
+    
+    .breakthrough-line:hover {
+      opacity: 1 !important;
+      stroke-width: 4px;
+    }
+
+    /* Information panels - side-positioned and expandable */
+    .info-panel {
+      display: none;
+      position: fixed;
+      top: 10%;
+      right: 10px;
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+      z-index: 100;
+      width: 35%;
+      max-width: 400px;
+      max-height: 80vh;
+      overflow-y: auto;
+    }
+    
+    .panel-expanded {
+      width: 60%;
+      max-width: 800px;
+      height: 85vh;
+      max-height: 85vh;
+    }
+    
+    .info-panel-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 15px;
+    }
+    
+    .info-panel-controls {
+      display: flex;
+      gap: 10px;
+    }
+    
+    .info-panel-title {
+      margin: 0;
+      color: #1565c0;
+    }
+    
+    .close-panel, .expand-panel {
+      background: none;
+      border: none;
+      font-size: 20px;
+      cursor: pointer;
+      color: #495057;
+      width: 30px;
+      height: 30px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+      transition: background-color 0.2s;
+    }
+    
+    .close-panel:hover, .expand-panel:hover {
+      background-color: #f1f3f5;
+    }
+    
+    .panel-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0,0,0,0.5);
+      z-index: 90;
+    }
+
+    /* Chart container - expandable */
+    .chart-container {
+      height: 300px;
+      margin: 20px 0;
+      transition: height 0.3s;
+    }
+    
+    .chart-container.expanded {
+      height: 500px;
+    }
+    
+    /* Trend info */
+    .trend-info {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-bottom: 15px;
+    }
+    
+    .trend-card {
+      flex: 1;
+      min-width: 110px;
+      background: #f8f9fa;
+      border-radius: 8px;
+      padding: 12px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    }
+    
+    .trend-value {
+      font-size: 24px;
+      font-weight: bold;
+      margin-bottom: 5px;
+    }
+    
+    .trend-label {
+      color: #6c757d;
+      font-size: 13px;
+    }
+    
+    .trend-direction {
+      display: flex;
+      align-items: center;
+      margin-top: 5px;
+      font-weight: bold;
+      font-size: 12px;
+    }
+    
+    .trend-up {
+      color: #28a745;
+    }
+    
+    .trend-down {
+      color: #dc3545;
+    }
+
+    /* Recommendations styling */
+    .recommendations-list {
+      margin-top: 15px;
+    }
+    
+    .recommendation-item {
+      background: white;
+      border: 1px solid #dee2e6;
+      border-radius: 8px;
+      padding: 15px;
+      margin-bottom: 10px;
+    }
+    
+    .recommendation-title {
+      font-weight: bold;
+      margin-bottom: 5px;
+    }
+    
+    .recommendation-desc {
+      color: #6c757d;
+      margin-bottom: 10px;
+    }
+    
+    .contact-options {
+      margin-top: 20px;
+    }
+    
+    .contact-title {
+      font-weight: bold;
+      margin-bottom: 10px;
+    }
+    
+    .contact-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+    
+    .contact-button {
+      background: #4a6fa5;
+      color: white;
+      border: none;
+      border-radius: 20px;
+      padding: 8px 15px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    
+    .contact-button:hover {
+      background: #395b89;
+      transform: translateY(-2px);
+    }
+    
+    .professional-button {
+      background: #28a745;
+    }
+    
+    .professional-button:hover {
+      background: #218838;
+    }
+
+    /* Interactive sliders */
+    .stability-slider-section h3 {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0px;
+    }
+    
+    .stability-slider-section h3 .section-score {
+      color: #1565c0;
+      font-weight: bold;
+    }
+    
+    .slider-row {
+      width: 100%;
+      display: flex;
+      align-items: center;
+    }
+    
+    .slider-input {
+      width: 100%;
+      margin: 0px 0;
+      flex-grow: 1;
+      margin: 0 5px;
+    }
+    
+    .slider-value {
+      width: 40px;
+      text-align: center;
+      font-size: 16px;
+    }
+    
+    .slider-label {
+      width: 150px;
+      font-size: 14px;
+      font-weight: bold;
+    }
+    
+    .variability-spectrum-info {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 0px;
+      font-size: 12px;
+      color: #666;
+    }
+    
+    .variability-spectrum-info span {
+      font-size: 12px;
+      color: #666;
+    }
+    
+    .variability-spectrum-info span:first-child {
+      text-align: left;
+    }
+    
+    .variability-spectrum-info span:last-child {
+      text-align: right;
+    }
+
+    .event-input-row {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 15px;
+      margin-bottom: 15px;
+    }
+    
+    .event-input-row label {
+      font-size: 15px;
+      font-weight: bold;
+    }
+    
+    .event-input {
+      width: 70px;
+      padding: 8px;
+      border: 1px solid #ced4da;
+      border-radius: 4px;
+      text-align: center;
+      font-size: 15px;
+    }
+    
+    .calculate-btn, .apply-changes {
+      background: #4a6fa5;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      padding: 10px 20px;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-size: 16px;
+      margin-top: 10px;
+    }
+    
+    .apply-changes {
+      display: block;
+      width: 100%;
+    }
+    
+    .calculate-btn:hover, .apply-changes:hover {
+      background: #395b89;
+      transform: translateY(-2px);
+    }
+    
+    /* Position gauge styling */
+    .position-gauge {
+      width: 100%;
+      height: 30px;
+      background: linear-gradient(to right, 
+        #3f51b5 0%, /* Deep blue (shutdown) */
+        #2196f3 20%, /* Light blue */
+        #4caf50 50%, /* Green (balanced) */
+        #ffc107 80%, /* Yellow */
+        #f44336 100% /* Red (meltdown) */
+      );
+      border-radius: 15px;
+      position: relative;
+      cursor: pointer;
+    }
+    
+    .position-marker {
+      position: absolute;
+      top: -5px;
+      width: 20px;
+      height: 40px;
+      background-color: white;
+      border: 2px solid #333;
+      border-radius: 4px;
+      transform: translateX(-50%);
+      transition: left 0.3s ease;
+    }
+    
+    .position-labels {
+      display: flex;
+      justify-content: space-between;
+      font-size: 12px;
+      color: #666;
+      margin-top: 5px;
+    }
+
+    /* Research references button and panel */
+    .research-references-btn {
+      background-color: #f8f9fa;
+      border: 1px solid #dee2e6;
+      padding: 8px 12px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 14px;
+      margin-top: 20px;
+      display: inline-block;
+    }
+    
+    .research-references-btn:hover {
+      background-color: #e9ecef;
+    }
+    
+    .research-panel {
+      display: none;
+      margin-top: 10px;
+      padding: 15px;
+      background-color: #f8f9fa;
+      border: 1px solid #dee2e6;
+      border-radius: 4px;
+    }
+    
+    .research-panel h4 {
+      margin-top: 0;
+      color: #495057;
+    }
+    
+    .research-panel p {
+      font-size: 14px;
+      line-height: 1.5;
+      color: #495057;
+    }
+    
+    /* Checkbox Recommendation Styling */
+    .checkbox-recommendation {
+      display: flex;
+      align-items: flex-start;
+      margin-bottom: 8px;
+    }
+    
+    .recommendation-checkbox {
+      margin-top: 3px;
+      margin-right: 8px;
+    }
+    
+    /* Routes Button Styling */
+    .routes-btn {
+      display: block;
+      margin: 15px 0;
+      padding: 8px 15px;
+      background-color: #4a6fa5;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    
+    .routes-btn:hover {
+      background-color: #395b89;
+      transform: translateY(-2px);
+    }
+
+    /* Connect Button */
+    .connect-btn {
+      padding: 8px 15px;
+      background-color: #4a6fa5;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      margin-right: 10px;
+    }
+    
+    .connect-btn:hover {
+      background-color: #395b89;
+    }
+    
+    /* View Full Impact Button */
+    .view-full-impact-btn {
+      display: inline-block;
+      margin: 0;
+      padding: 8px 15px;
+      background: #1565c0;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 14px;
+      transition: background 0.2s;
+    }
+    
+    .view-full-impact-btn:hover {
+      background: #0d47a1;
+    }
+    
+    /* Submit Challenge Button */
+    .submit-challenge-btn {
+      padding: 10px 20px;
+      background-color: #f44336;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      margin-bottom: 15px;
+      display: block;
+      width: 100%;
+    }
+    
+    /* Crisis Panel Styles */
+    .crisis-panel {
+      display: none;
+      position: fixed;
+      top: 10%;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 80%;
+      max-width: 700px;
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+      z-index: 150;
+      max-height: 80vh;
+      overflow-y: auto;
+    }
+
+    .crisis-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 15px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid #eee;
+    }
+    
+    .crisis-title {
+      margin: 0;
+      color: #d32f2f;
+      font-size: 24px;
+    }
+    
+    .crisis-date {
+      font-style: italic;
+      color: #757575;
+    }
+    
+    .crisis-content {
+      margin-bottom: 20px;
+    }
+    
+    .crisis-quote {
+      font-style: italic;
+      font-size: 16px;
+      color: #555;
+      border-left: 3px solid #d32f2f;
+      padding-left: 15px;
+      margin: 15px 0;
+    }
+    
+    .crisis-details {
+      background-color: #f8f9fa;
+      padding: 15px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+    }
+    
+    .crisis-impact {
+      margin-top: 20px;
+    }
+    
+    /* Impact tabs styling */
+    .impact-tabs {
+      display: flex;
+      border-bottom: 1px solid #ccc;
+      margin-bottom: 15px;
+    }
+    
+    .impact-tab {
+      padding: 8px 15px;
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: bold;
+    }
+    
+    .impact-tab.active {
+      border-bottom: 3px solid #1565c0;
+      color: #1565c0;
+    }
+    
+    .impact-content {
+      display: none;
+    }
+    
+    .impact-content.active {
+      display: block;
+    }
+
+    /* Impact metrics styling */
+    .metrics-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+      gap: 15px;
+      margin-top: 15px;
+    }
+    
+    .metric-item {
+      background: #f0f7ff;
+      padding: 12px;
+      border-radius: 8px;
+      text-align: center;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    
+    .metric-value {
+      font-size: 24px;
+      font-weight: bold;
+      color: #1565c0;
+      margin-bottom: 5px;
+    }
+    
+    .metric-label {
+      font-size: 14px;
+      color: #555;
+    }
+    
+    /* Impact timeline styling */
+    .impact-timeline {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      margin: 20px 0;
+    }
+    
+    .timeline-section {
+      background: #f8f9fa;
+      border-radius: 8px;
+      padding: 15px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    }
+    
+    .timeline-section h4 {
+      margin-top: 0;
+      margin-bottom: 10px;
+      color: #1565c0;
+      padding-bottom: 5px;
+      border-bottom: 1px solid #eee;
+    }
+    
+    .timeline-events {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    
+    .timeline-event {
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+    }
+    
+    .event-date {
+      flex: 0 0 80px;
+      font-weight: bold;
+      color: #1565c0;
+    }
+    
+    .event-content {
+      flex: 1;
+    }
+    
+    .event-impact {
+      margin-top: 5px;
+      font-style: italic;
+      color: #666;
+    }
+    
+    .event-outcome {
+      margin-top: 5px;
+      font-weight: bold;
+      color: #e53935;
+    }
+
+    /* Routes Panel Styling */
+    .routes-map-container {
+      background: #f8f9fa;
+      border-radius: 8px;
+      padding: 15px;
+      margin: 15px 0;
+      box-shadow: inset 0 0 5px rgba(0,0,0,0.1);
+      height: 400px;
+    }
+    
+    /* Start Routes Button */
+    .start-routes-btn {
+      display: block;
+      margin: 20px 0;
+      padding: 10px 20px;
+      background: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 16px;
+    }
+    
+    /* Section metrics styling */
+    .section-metrics {
+      margin: 20px 0;
+      padding: 15px;
+      background-color: #f8f9fa;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    }
+    
+    .section-metrics h3 {
+      margin-top: 0;
+      color: #1565c0;
+      font-size: 18px;
+      margin-bottom: 15px;
+    }
+    
+    /* Media queries for responsive layout */
+    @media (max-width: 768px) {
+      .wheel-container {
+        width: 100%;
+        max-width: 400px;
+        height: auto;
+      }
+      
+      .info-panel {
+        width: 95%;
+        max-width: 95%;
+      }
+      
+      .crisis-panel {
+        width: 95%;
+        max-width: 95%;
+      }
+      
+      .metrics-grid {
+        grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+      }
+
+      /* Timeline styling */
+.individual-timeline {
+  margin: 30px 0;
+  padding: 20px;
+  background-color: #f8f9fa;
+  border-radius: 8px;
+}
+
+.timeline-container {
+  position: relative;
+  margin-top: 20px;
+  padding-left: 50px;
+}
+
+.timeline-container::before {
+  content: '';
+  position: absolute;
+  left: 20px;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: #1565c0;
+}
+
+.timeline-item {
+  margin-bottom: 30px;
+  position: relative;
+}
+
+.timeline-item::before {
+  content: '';
+  position: absolute;
+  left: -43px;
+  top: 0;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #f44336;
+  border: 2px solid #fff;
+}
+
+.timeline-date {
+  font-weight: bold;
+  color: #1565c0;
+  margin-bottom: 5px;
+}
+
+.timeline-content {
+  background: #fff;
+  padding: 15px;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.timeline-content h4 {
+  margin-top: 0;
+  color: #333;
+}
+
+.timeline-quote {
+  font-style: italic;
+  border-left: 3px solid #f44336;
+  padding-left: 10px;
+  margin-top: 10px;
+  color: #555;
+}
+
+/* Analytics section */
+.individual-case-analytics {
+  margin: 30px 0;
+  padding: 20px;
+  background-color: #f0f7ff;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.analytics-item {
+  margin-bottom: 25px;
+}
+
+.analytics-chart-container {
+  height: 300px;
+  margin: 15px 0;
+  background: white;
+  padding: 15px;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Adaptation Thermostat</h1>
+    
+    <!-- Tabs navigation -->
+    <div class="tabs">
+      <button class="tab-button active" onclick="openTab('individual')">Individual Level</button>
+    </div>
+    
+    <!-- Individual tab content -->
+    <div id="individual" class="tab-content active">
+      <!-- Emergency Panel -->
+      <div class="emergency-panel">
+        <h3>Individual Crisis Support</h3>
+        
+        <p>If you're experiencing institutional barriers, select what you're facing:</p>
+        <div class="symptom-buttons">
+          <button class="symptom-button" data-system="healthcare">Healthcare Fragmentation</button>
+          <button class="symptom-button" data-system="accommodation">Accommodation Denials</button>
+          <button class="symptom-button" data-system="academic">Academic Barriers</button>
+          <button class="symptom-button" data-system="coordination">Support Coordination</button>
+          <button class="symptom-button" data-system="mental">Mental Health Crisis</button>
+          <button class="symptom-button" data-system="financial">Financial Stress</button>
+          <button class="symptom-button" data-system="visa">Visa/International</button>
+        </div>
+        
+        <textarea class="custom-description" placeholder="Describe your institutional challenges here..."></textarea>
+        <div class="typing-indicator">Finding solutions for you...</div>
+        
+        <div class="recommendations" id="individual-emergency-recommendations">
+          <h4>Immediate Actions:</h4>
+          <ul id="individual-immediate-interventions">
+            <li>Click a button above or describe what you're experiencing</li>
+          </ul>
+        </div>
+      </div>
+      
+      <!-- Individual Adaptation Wheel and information area -->
+      <div class="sensory-content">
+        <div class="wheel-container">
+         <!-- SVG wheel with institutional components instead of sensory systems -->
+         <svg class="sensory-wheel-svg" viewBox="0 0 500 500" xmlns="http://www.w3.org/2000/svg">
+          <!-- Outer circle border -->
+          <circle cx="250" cy="250" r="241" fill="none" stroke="black" stroke-width="2"/>
+          
+          <!-- Colored sections in outer ring - each represents an institutional department -->
+          <!-- Healthcare - Red (poorly regulated) -->
+          <path d="M155.5,28.8 A245,245 0 0,1 344.5,28.8 L319,92 A180,180 0 0,0 179.2,83.6 Z" 
+                fill="#f8696b" stroke="none" class="section-path" id="healthcare-section" 
+                data-section="healthcare" onclick="showSectionInfo('healthcare')"/>
+          
+          <!-- DRC - Yellow (moderately regulated) -->
+          <path d="M344.5,28.8 A245,245 0 0,1 471.2,155.5 L412.4,179.2 A180,180 0 0,0 320.8,83.6 Z" 
+                fill="#ffe699" stroke="none" class="section-path" id="drc-section" 
+                data-section="drc" onclick="showSectionInfo('drc')"/>
+          
+          <!-- Academic Department - Yellow (moderately regulated) -->
+          <path d="M471.2,155.5 A245,245 0 0,1 471.2,344.5 L412.4,320.8 A180,180 0 0,0 412.4,179.2 Z" 
+                fill="#ffe699" stroke="none" class="section-path" id="academic-section" 
+                data-section="academic" onclick="showSectionInfo('academic')"/>
+          
+          <!-- Graduate School - Red (poorly regulated) -->
+          <path d="M471.2,344.5 A245,245 0 0,1 344.5,471.2 L320.8,412.4 A180,180 0 0,0 412.4,320.8 Z" 
+          fill="#f8696b" stroke="none" class="section-path" id="gradschool-section" 
+          data-section="gradschool" onclick="showSectionInfo('gradschool')"/>
+    
+    <!-- Mental Health - Red (poorly regulated) -->
+    <path d="M344.5,471.2 A245,245 0 0,1 155.5,471.2 L179.2,412.4 A180,180 0 0,0 320.8,412.4 Z" 
+          fill="#f8696b" stroke="none" class="section-path" id="mentalhealth-section" 
+          data-section="mentalhealth" onclick="showSectionInfo('mentalhealth')"/>
+    
+    <!-- OEO - Yellow (moderately regulated) -->
+    <path d="M155.5,471.2 A245,245 0 0,1 28.8,344.5 L87.6,320.8 A180,180 0 0,0 179.2,412.4 Z" 
+          fill="#ffe699" stroke="none" class="section-path" id="oeo-section" 
+          data-section="oeo" onclick="showSectionInfo('oeo')"/>
+    
+    <!-- Admin/Ombud - Yellow (moderately regulated) -->
+    <path d="M28.8,344.5 A245,245 0 0,1 28.8,155.5 L87.6,179.2 A180,180 0 0,0 87.6,320.8 Z" 
+          fill="#ffe699" stroke="none" class="section-path" id="admin-section" 
+          data-section="admin" onclick="showSectionInfo('admin')"/>
+    
+    <!-- ADA Compliance - Red (poorly regulated) -->
+    <path d="M28.8,155.5 A245,245 0 0,1 155.5,28.8 L179.2,83.6 A180,180 0 0,0 87.6,179.2 Z" 
+          fill="#f8696b" stroke="none" class="section-path" id="ada-section" 
+          data-section="ada" onclick="showSectionInfo('ada')"/>
+    
+    <!-- Middle white ring with border -->
+    <circle cx="250" cy="250" r="179.5" fill="white" stroke="black" stroke-width="1"/>
+            
+    <!-- The adaptation score hub in the center -->
+    <!-- Main hub circle - its color represents position on spectrum -->
+    <circle cx="250" cy="250" r="70" fill="#f44336" stroke="none" 
+           id="individual-hub-circle" class="wheel-hub" onclick="showIndividualHubInfo()"/>
+    
+    <!-- Hub border - thickness represents stability (inversely related to variability) -->
+    <circle cx="250" cy="250" r="75" fill="none" stroke="#333" stroke-width="6" stroke-opacity="0.7"
+           id="individual-hub-border" onclick="showIndividualHubInfo()"/>
+    
+    <!-- Position value (-10 to +10) -->
+    <text x="250" y="240" text-anchor="middle" font-size="28" font-weight="bold" fill="white" pointer-events="none" id="individual-hub-position">-4</text>
+    
+    <!-- Variability value - representing coin thickness -->
+    <text x="250" y="270" text-anchor="middle" font-size="28" font-weight="bold" fill="white" pointer-events="none" id="individual-hub-variability">±8</text>
+    
+    <!-- Spokes connecting hub to sections - with enhanced clickable areas -->
+    
+   <!-- Healthcare (Red): Dashed line with wider clickable area -->
+   <g class="spoke-group" id="healthcare-spoke-group">
+    <line x1="250" y1="180" x2="250" y2="70" class="spoke-clickable-area" stroke="transparent"
+    onclick="showIndividualSpokeInfo('healthcare')"/>
+    <line x1="250" y1="180" x2="250" y2="70" stroke="black" stroke-width="2" stroke-dasharray="5,3" class="spoke"
+        id="healthcare-spoke" data-section="healthcare"/>
+  </g>
+  
+  <!-- DRC (Yellow): Dashed line with wider clickable area -->
+  <g class="spoke-group" id="drc-spoke-group">
+    <line x1="302" y1="198" x2="377" y2="123" class="spoke-clickable-area" stroke="transparent" 
+        onclick="showIndividualSpokeInfo('drc')"/>
+    <line x1="302" y1="198" x2="377" y2="123" stroke="black" stroke-width="2" stroke-dasharray="5,3" 
+        class="spoke" id="drc-spoke" data-section="drc"/>
+  </g>
+  
+  <!-- Academic (Yellow): Dashed line with wider clickable area -->
+  <g class="spoke-group" id="academic-spoke-group">
+    <line x1="320" y1="250" x2="430" y2="250" class="spoke-clickable-area" stroke="transparent" 
+        onclick="showIndividualSpokeInfo('academic')"/>
+    <line x1="320" y1="250" x2="430" y2="250" stroke="black" stroke-width="2" stroke-dasharray="5,3" class="spoke"
+        id="academic-spoke" data-section="academic"/>
+  </g>
+  
+ <!-- Graduate School (Red): Dashed line with wider clickable area -->
+ <g class="spoke-group" id="gradschool-spoke-group">
+  <line x1="302" y1="302" x2="377" y2="377" class="spoke-clickable-area" stroke="transparent" 
+      onclick="showIndividualSpokeInfo('gradschool')"/>
+  <line x1="302" y1="302" x2="377" y2="377" stroke="black" stroke-width="2" stroke-dasharray="5,3" 
+      class="spoke" id="gradschool-spoke" data-section="gradschool"/>
+</g>
+
+<!-- Mental Health (Red): Dashed line with wider clickable area -->
+<g class="spoke-group" id="mentalhealth-spoke-group">
+  <line x1="250" y1="320" x2="250" y2="430" class="spoke-clickable-area" stroke="transparent" 
+      onclick="showIndividualSpokeInfo('mentalhealth')"/>
+  <line x1="250" y1="320" x2="250" y2="430" stroke="black" stroke-width="2" stroke-dasharray="5,3" 
+      class="spoke" id="mentalhealth-spoke" data-section="mentalhealth"/>
+</g>
+
+<!-- OEO (Yellow): Dashed line with wider clickable area -->
+<g class="spoke-group" id="oeo-spoke-group">
+  <line x1="198" y1="302" x2="123" y2="377" class="spoke-clickable-area" stroke="transparent" 
+      onclick="showIndividualSpokeInfo('oeo')"/>
+  <line x1="198" y1="302" x2="123" y2="377" stroke="black" stroke-width="2" stroke-dasharray="5,3" 
+      class="spoke" id="oeo-spoke" data-section="oeo"/>
+</g>
+
+<!-- Admin/Ombud (Yellow): Dashed line with wider clickable area -->
+<g class="spoke-group" id="admin-spoke-group">
+  <line x1="180" y1="250" x2="70" y2="250" class="spoke-clickable-area" stroke="transparent" 
+      onclick="showIndividualSpokeInfo('admin')"/>
+  <line x1="180" y1="250" x2="70" y2="250" stroke="black" stroke-width="2" stroke-dasharray="5,3" 
+      class="spoke" id="admin-spoke" data-section="admin"/>
+</g>
+
+<!-- ADA (Red): Dashed line with wider clickable area -->
+<g class="spoke-group" id="ada-spoke-group">
+  <line x1="198" y1="198" x2="123" y2="123" class="spoke-clickable-area" stroke="transparent" 
+      onclick="showIndividualSpokeInfo('ada')"/>
+  <line x1="198" y1="198" x2="123" y2="123" stroke="black" stroke-width="2" stroke-dasharray="5,3" 
+      class="spoke" id="ada-spoke" data-section="ada"/>
+</g>
+
+<!-- CRISIS BREAKTHROUGH LINES - Historical Critical Incidents -->
+<!-- White background lines at section boundaries -->
+<!-- Healthcare/DRC Boundary (Jan 2023 PNES Diagnosis Event) -->
+<line x1="377" y1="123" x2="423" y2="77" stroke="white" stroke-width="4" class="breakthrough-background" data-sections="healthcare,drc"/>
+
+<!-- Healthcare/Mental Health Boundary (Sept 2023 Handcuffing Incident) -->
+<line x1="300" y1="425" x2="280" y2="465" stroke="white" stroke-width="4" class="breakthrough-background" data-sections="healthcare,mentalhealth"/>
+
+<!-- Academic/Graduate School Boundary (Feb 2024 Assistantship Termination) -->
+<line x1="377" y1="377" x2="423" y2="423" stroke="white" stroke-width="4" class="breakthrough-background" data-sections="academic,gradschool"/>
+
+<!-- Mental Health/Individual (Jan 2024 Suicide Attempt) -->
+<line x1="250" y1="430" x2="250" y2="490" stroke="white" stroke-width="4" class="breakthrough-background" data-sections="mentalhealth"/>
+
+<!-- Admin/OEO/ADA Boundary (Aug 2024 Investigation Without Protection) -->
+<line x1="123" y1="377" x2="77" y2="423" stroke="white" stroke-width="4" class="breakthrough-background" data-sections="oeo,admin"/>
+            
+<!-- Red dashed lines for crisis events - visible and clickable -->
+<!-- Healthcare/DRC Boundary (Jan 2023 PNES Diagnosis Event) -->
+<line x1="377" y1="123" x2="423" y2="77" stroke="red" stroke-width="3" stroke-dasharray="5,3" 
+      class="breakthrough-line" id="diagnosis-breakthrough" 
+      data-crisis="diagnosis" data-date="Jan 2023" data-title="PNES Diagnosis Without Support"
+      onclick="showBreakthroughInfo('diagnosis')" style="opacity: 0.9; cursor: pointer;"/>
+
+<!-- Healthcare/Mental Health Boundary (Sept 2023 Handcuffing Incident) -->
+<line x1="300" y1="425" x2="280" y2="465" stroke="red" stroke-width="3" stroke-dasharray="5,3" 
+      class="breakthrough-line" id="handcuffing-breakthrough" 
+      data-crisis="handcuffing" data-date="Sep 2023" data-title="Handcuffed & Transported to Psychiatric Hospital"
+      onclick="showBreakthroughInfo('handcuffing')" style="opacity: 0.9; cursor: pointer;"/>
+
+<!-- Academic/Graduate School Boundary (Feb 2024 Assistantship Termination) -->
+<line x1="377" y1="377" x2="423" y2="423" stroke="red" stroke-width="3" stroke-dasharray="5,3" 
+      class="breakthrough-line" id="assistantship-breakthrough" 
+      data-crisis="assistantship" data-date="Feb 2024" data-title="Research Assistantship Termination"
+      onclick="showBreakthroughInfo('assistantship')" style="opacity: 0.9; cursor: pointer;"/>
+
+<!-- Mental Health/Individual (Jan 2024 Suicide Attempt) -->
+<line x1="250" y1="430" x2="250" y2="490" stroke="red" stroke-width="3" stroke-dasharray="5,3" 
+class="breakthrough-line" id="suicide-breakthrough" 
+data-crisis="suicide" data-date="Jan 2024" data-title="Suicide Attempt"
+onclick="showBreakthroughInfo('suicide')" style="opacity: 0.9; cursor: pointer;"/>
+
+<!-- Admin/OEO/ADA Boundary (Aug 2024 Investigation Without Protection) -->
+<line x1="123" y1="377" x2="77" y2="423" stroke="red" stroke-width="3" stroke-dasharray="5,3" 
+class="breakthrough-line" id="investigation-breakthrough" 
+data-crisis="investigation" data-date="Aug 2024" data-title="Investigation Without Protection"
+onclick="showBreakthroughInfo('investigation')" style="opacity: 0.9; cursor: pointer;"/>
+
+<!-- Section Labels - Positioned in the middle of each section -->
+<text x="250" y="40" text-anchor="middle" font-size="14" font-weight="bold" fill="black" pointer-events="none">Healthcare</text>
+<text x="400" y="100" text-anchor="middle" font-size="14" font-weight="bold" fill="black" transform="rotate(45,400,100)" pointer-events="none">DRC</text>
+<text x="460" y="250" text-anchor="middle" font-size="14" font-weight="bold" fill="black" transform="rotate(-90,460,250)" pointer-events="none">Academic</text>
+<text x="400" y="400" text-anchor="middle" font-size="14" font-weight="bold" fill="black" transform="rotate(-45,400,400)" pointer-events="none">Grad School</text>
+<text x="250" y="460" text-anchor="middle" font-size="14" font-weight="bold" fill="black" pointer-events="none">Mental Health</text>
+<text x="100" y="400" text-anchor="middle" font-size="14" font-weight="bold" fill="black" transform="rotate(45,100,400)" pointer-events="none">OEO</text>
+<text x="40" y="250" text-anchor="middle" font-size="14" font-weight="bold" fill="black" transform="rotate(270,40,250)" pointer-events="none">Admin/Ombud</text>
+<text x="100" y="100" text-anchor="middle" font-size="14" font-weight="bold" fill="black" transform="rotate(-45,100,100)" pointer-events="none">ADA Office</text>
+</svg>
+</div>
+</div>
+
+<!-- Research References Button -->
+<button class="research-references-btn" id="individual-research-btn">References ▼</button>
+
+<!-- Research References Panel -->
+<div class="research-panel" id="individual-research-panel">
+<h4>Research and Sources</h4>
+<!-- References content here -->
+</div>
+</div>
+
+<!-- Overlay for info panels -->
+<div class="panel-overlay" id="panel-overlay"></div>
+    
+<!-- Hub Information Panel -->
+<div class="info-panel" id="hub-panel">
+  <div class="info-panel-header">
+    <h2 class="info-panel-title">Individual Stability Status</h2>
+    <div class="info-panel-controls">
+      <button class="expand-panel" onclick="togglePanelSize('hub-panel')" title="Expand/Collapse Panel">⤢</button>
+      <button class="close-panel" onclick="closePanel('hub-panel')" title="Close Panel">&times;</button>
+    </div>
+  </div>
+  
+  <!-- Streamlined stability inputs -->
+  <div class="stability-inputs">
+    <div class="stability-slider-section">
+      <h3>Where You Are Now <span class="position-value" id="position-slider-value">-4</span></h3>
+      
+      <!-- Visual position gauge with no extra sliders -->
+      <div class="position-gauge">
+        <div class="position-marker" id="position-marker" style="left: 30%;"></div>
+      </div>
+      
+      <!-- Labels below gauge -->
+      <div class="position-labels">
+        <span>Shutdown</span>
+        <span>Balanced</span>
+        <span>Meltdown</span>
+      </div>
+      
+      <!-- Completely hidden input just for internal tracking -->
+      <input type="range" min="-10" max="10" value="-4" class="slider-input" id="position-slider" style="display: none;">
+    
+      <h3>How Much You Change <span class="slider-value" id="variability-slider-value">±8</span></h3>
+      <div class="slider-row">
+        <input type="range" min="0" max="10" value="8" class="slider-input" id="variability-slider">
+      </div>
+      
+      <div class="variability-spectrum-info">
+        <span>Stable (Better)</span>
+        <span>Frequent flips</span>
+      </div>
+    
+      <div class="event-input-section">
+        <h3>Event Tracking</h3>
+        <div class="event-input-row">
+          <label for="event-count">Incidents (last 30 days):</label>
+          <input type="number" id="event-count" min="0" max="30" value="7" class="event-input">
+          <button class="calculate-btn" id="calculate-from-events">Calculate</button>
+        </div>
+      </div>
+      
+      <button class="submit-challenge-btn">Submit Challenge</button>
+      <button class="apply-changes" id="apply-hub-changes">Apply Changes</button>
+    </div>
+  </div>
+
+  <!-- Section Information Panel -->
+  <div class="info-panel" id="section-panel">
+    <div class="info-panel-header">
+      <h2 class="info-panel-title" id="section-panel-title">Department</h2>
+      <div class="info-panel-controls">
+        <button class="expand-panel" onclick="togglePanelSize('section-panel')" title="Expand/Collapse Panel">⤢</button>
+        <button class="close-panel" onclick="closePanel('section-panel')" title="Close Panel">&times;</button>
+      </div>
+    </div>
+    
+    <div class="trend-info">
+      <div class="trend-card">
+        <div class="trend-value" id="section-score">0.0</div>
+        <div class="trend-label">Current Score</div>
+        <div class="trend-direction" id="section-trend"></div>
+      </div>
+      
+      <div class="trend-card">
+        <div class="trend-value" id="section-events">0</div>
+        <div class="trend-label">Related Shutdown Events</div>
+        <div class="trend-direction" id="section-events-trend"></div>
+      </div>
+    </div>
+    
+    <div class="chart-container" id="section-chart-container">
+      <canvas id="sectionTrendChart"></canvas>
+    </div>
+    
+    <h3>Current Challenges</h3>
+    <ul id="section-challenges">
+      <!-- Populated dynamically based on selected section -->
+    </ul>
+    
+    <!-- Section metrics -->
+    <div class="section-metrics">
+      <h3>Section Metrics</h3>
+      <div class="slider-container">
+        <div class="slider-row">
+          <div class="slider-label">Response Time:</div>
+          <input type="range" min="1" max="30" value="14" class="slider-input" id="section-response-time">
+          <div class="slider-value" id="section-response-value">14 days</div>
+        </div>
+        
+        <div class="slider-row">
+          <div class="slider-label">Solution Speed:</div>
+          <input type="range" min="0" max="180" value="60" class="slider-input" id="section-solution-speed">
+          <div class="slider-value" id="section-solution-value">60 days</div>
+        </div>
+        
+        <div class="slider-row">
+          <div class="slider-label">Related Incidents:</div>
+          <input type="range" min="0" max="10" value="3" class="slider-input" id="section-incidents">
+          <div class="slider-value" id="section-incidents-value">3</div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Added section performance slider -->
+    <div class="slider-container">
+      <h3 class="slider-title" id="section-slider-title">Adjust Section Performance</h3>
+      <p>Use this slider to see how changes in this department's performance would affect the wheel visualization.</p>
+      
+      <div class="slider-row">
+        <div class="slider-label" id="section-slider-label">Performance Score:</div>
+        <input type="range" min="1" max="10" step="0.1" value="5.0" class="slider-input" id="section-slider">
+        <div class="slider-value" id="section-slider-value">5.0</div>
+      </div>
+      
+      <button class="apply-changes" id="apply-section-changes">Apply Changes</button>
+    </div>
+    
+    <div style="text-align: center; margin-top: 20px;">
+      <button class="connect-btn">Connect</button>
+      <button class="view-full-impact-btn">View Full Impact</button>
+    </div>
+  </div>
+  
+  <!-- Spoke Information Panel -->
+  <div class="info-panel" id="spoke-panel">
+    <div class="info-panel-header">
+      <h2 class="info-panel-title" id="spoke-panel-title">Recommendations</h2>
+      <div class="info-panel-controls">
+        <button class="expand-panel" onclick="togglePanelSize('spoke-panel')" title="Expand/Collapse Panel">⤢</button>
+        <button class="close-panel" onclick="closePanel('spoke-panel')" title="Close Panel">&times;</button>
+      </div>
+    </div>
+    
+    <div class="recommendations-list" id="spoke-recommendations">
+      <!-- Populated dynamically based on selected spoke -->
+    </div>
+    
+    <div class="contact-options">
+      <h3 class="contact-title">Co-Create Solutions With:</h3>
+      <div class="contact-list" id="contact-list">
+        <!-- Populated dynamically based on selected spoke -->
+      </div>
+    </div>
+    
+    <div style="text-align: center; margin-top: 20px;">
+      <button class="connect-btn">Connect</button>
+      <button class="view-full-impact-btn">View Full Impact</button>
+    </div>
+  </div>
+  
+  <!-- Crisis Panel for breakthrough events -->
+  <div id="crisis-panel" class="crisis-panel">
+    <!-- Content will be dynamically generated -->
+  </div>
+  
+  <!-- Full Impact Panel for system analysis -->
+  <div id="full-impact-panel" class="crisis-panel">
+    <!-- Content will be dynamically generated -->
+  </div>
+
+  <!-- Analytics Section -->
+<div class="individual-case-analytics">
+  <h3>System Analysis</h3>
+  
+  <div class="analytics-item">
+    <h4>Response Times vs. Solution Times</h4>
+    <div class="analytics-chart-container">
+      <canvas id="responseTimesChart"></canvas>
+    </div>
+  </div>
+  
+  <div class="analytics-item">
+    <h4>System Failures by Department</h4>
+    <div class="analytics-chart-container">
+      <canvas id="failuresByDeptChart"></canvas>
+    </div>
+  </div>
+  
+  <div class="analytics-item">
+    <h4>Coordination Attempts vs. Successes</h4>
+    <div class="analytics-chart-container">
+      <canvas id="coordinationChart"></canvas>
+    </div>
+  </div>
+</div>
+  
+  <!-- Routes Panel for navigation mapping -->
+  <div id="routes-panel" class="crisis-panel">
+    <!-- Content will be dynamically generated -->
+  </div>
+</div>
+
+<!-- Timeline Section -->
+<div class="individual-timeline">
+  <h3>Critical Incidents Timeline</h3>
+  
+  <div class="timeline-container">
+    <div class="timeline-item">
+      <div class="timeline-date">January 2023</div>
+      <div class="timeline-content">
+        <h4>PNES Diagnosis Without Support</h4>
+        <p>Diagnosed with Psychogenic Non-Epileptic Seizures (PNES) at UK Hospital's level 4 epilepsy unit, then discharged without coordinated care plan.</p>
+        <div class="timeline-quote">I was discharged to navigate a labyrinth of fragmented services alone.</div>
+      </div>
+    </div>
+    
+    <div class="timeline-item">
+      <div class="timeline-date">September 2023</div>
+      <div class="timeline-content">
+        <h4>Psychiatric Detention Crisis</h4>
+        <p>After experiencing a seizure, self-presented to University Health Services. Instead of appropriate care, was handcuffed and transported to Eastern State Hospital.</p>
+        <div class="timeline-quote">I was stripped into a hospital gown, then handcuffed and transported by sheriffs in the middle of the night.</div>
+      </div>
+    </div>
+    
+    <div class="timeline-item">
+      <div class="timeline-date">January 2024</div>
+      <div class="timeline-content">
+        <h4>Suicide Attempt</h4>
+        <p>After months of institutional neglect and deteriorating mental health, attempted suicide.</p>
+        <div class="timeline-quote">I could not turn myself in again, I would rather die.</div>
+      </div>
+    </div>
+    
+    <div class="timeline-item">
+      <div class="timeline-date">February 2024</div>
+      <div class="timeline-content">
+        <h4>Research Assistantship Termination</h4>
+        <p>Principal Investigator terminated research assistantship without any accommodation deliberation process.</p>
+        <div class="timeline-quote">My PI was done with me, my DGS couldn't care less, the message was clear: get out.</div>
+      </div>
+    </div>
+    
+    <div class="timeline-item">
+      <div class="timeline-date">August 2024</div>
+      <div class="timeline-content">
+        <h4>Investigation Without Protection</h4>
+        <p>Office of Equal Opportunity began investigation but provided no interim protection or accommodations.</p>
+        <div class="timeline-quote">The investigation continued without regard for protecting the student who was potentially being discriminated against.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Tab switching function
+  function openTab(tabName) {
+    const tabContents = document.getElementsByClassName('tab-content');
+    for (let i = 0; i < tabContents.length; i++) {
+      tabContents[i].classList.remove('active');
+    }
+    
+    const tabButtons = document.getElementsByClassName('tab-button');
+    for (let i = 0; i < tabButtons.length; i++) {
+      tabButtons[i].classList.remove('active');
+    }
+    
+    const tabContent = document.getElementById(tabName);
+    if (tabContent) {
+      tabContent.classList.add('active');
+    }
+    
+    const buttons = document.getElementsByClassName('tab-button');
+    for (let i = 0; i < buttons.length; i++) {
+      if (buttons[i].textContent.toLowerCase().includes(tabName.toLowerCase())) {
+        buttons[i].classList.add('active');
+      }
+    }
+  }
+  
+  // Function to toggle panel size (expand/collapse)
+  function togglePanelSize(panelId) {
+    const panel = document.getElementById(panelId);
+    if (panel) {
+      panel.classList.toggle('panel-expanded');
+      
+      // Also toggle chart container size if present
+      const chartContainerId = panelId.replace('panel', 'chart-container');
+      const chartContainer = document.getElementById(chartContainerId);
+      if (chartContainer) {
+        chartContainer.classList.toggle('expanded');
+        
+        // Resize charts if expanded
+        if (chartContainer.classList.contains('expanded')) {
+          if (panelId === 'hub-panel' && window.hubChart) {
+            window.hubChart.resize();
+          } else if (panelId === 'section-panel' && window.sectionChart) {
+            window.sectionChart.resize();
+          }
+        }
+      }
+    }
+  }
+  
+  // Function to close information panels
+  function closePanel(panelId) {
+    const panel = document.getElementById(panelId);
+    if (panel) panel.style.display = 'none';
+    
+    const overlay = document.getElementById('panel-overlay');
+    if (overlay) overlay.style.display = 'none';
+    
+    // Reset panel expanded state
+    if (panel) panel.classList.remove('panel-expanded');
+    
+    // Reset chart container expanded state if present
+    const chartContainerId = panelId.replace('panel', 'chart-container');
+    const chartContainer = document.getElementById(chartContainerId);
+    if (chartContainer) {
+      chartContainer.classList.remove('expanded');
+    }
+  }
+
+  // Function to show individual hub information
+  function showIndividualHubInfo() {
+      // Show the overlay
+      const overlay = document.getElementById('panel-overlay');
+      if (overlay) overlay.style.display = 'block';
+      
+      // Show the hub panel (reusing the same panel from sensory tab)
+      const hubPanel = document.getElementById('hub-panel');
+      if (hubPanel) {
+        // Update panel title
+        const panelTitle = hubPanel.querySelector('.info-panel-title');
+        if (panelTitle) panelTitle.textContent = 'Individual Stability Status';
+        
+        // Update recommendations to individual-specific ones
+        const recommendations = hubPanel.querySelector('#individualRecommendations');
+        if (recommendations) {
+          recommendations.innerHTML = `
+            <p><strong>Based on current stability (-4 with ±8 volatility):</strong></p>
+            <ul>
+              <li>Document all interactions with university offices</li>
+              <li>Request written confirmation of verbal promises</li>
+              <li>Establish a support network of advocates</li>
+              <li>Prioritize self-care when navigating institutional barriers</li>
+            </ul>
+          `;
+        }
+        
+        // Update sliders to match hub values
+        updateSliders();
+        
+        hubPanel.style.display = 'block';
+      }
+      
+      // Update trend chart if it exists
+      if (window.hubChart) {
+        window.hubChart.data.datasets[0].label = 'Institutional Stability';
+        window.hubChart.data.datasets[1].label = 'Administrative Volatility';
+        window.hubChart.data.datasets[2].label = 'Health Incidents';
+        window.hubChart.update();
+      }
+    }
+    
+    // Function to update sliders to match hub values
+    function updateSliders() {
+      // Get current position and variability from hub
+      const position = document.getElementById('individual-hub-position');
+      const variability = document.getElementById('individual-hub-variability');
+      
+      if (position && variability) {
+        const posValue = parseInt(position.textContent);
+        const varValue = parseInt(variability.textContent.replace('±', ''));
+        
+        // Update slider values
+        const posSlider = document.getElementById('position-slider');
+        const posSliderValue = document.getElementById('position-slider-value');
+        const posMarker = document.getElementById('position-marker');
+        
+        if (posSlider) posSlider.value = posValue;
+        if (posSliderValue) posSliderValue.textContent = posValue >= 0 ? `+${posValue}` : posValue;
+        
+        if (posMarker) {
+          // Calculate position (50% is center, each unit is 5%)
+          const markerPos = 50 + (posValue * 5);
+          posMarker.style.left = `${markerPos}%`;
+        }
+        
+        const varSlider = document.getElementById('variability-slider');
+        const varSliderValue = document.getElementById('variability-slider-value');
+        
+        if (varSlider) varSlider.value = varValue;
+        if (varSliderValue) varSliderValue.textContent = `±${varValue}`;
+      }
+    }
+
+    // Function to show information about a specific university section
+    function showSectionInfo(sectionId) {
+      // Similar structure to sensory tab, but with institutional content
+      // Show the overlay
+      const overlay = document.getElementById('panel-overlay');
+      if (overlay) overlay.style.display = 'block';
+      
+      // Store current section for future reference
+      window.currentSection = sectionId;
+      
+      // Show the section panel
+      const sectionPanel = document.getElementById('section-panel');
+      if (sectionPanel) {
+        // Update panel title based on section
+        const panelTitle = sectionPanel.querySelector('.info-panel-title');
+        if (panelTitle) {
+          const titleMap = {
+            'healthcare': 'University Healthcare System',
+            'drc': 'Disability Resource Center',
+            'academic': 'Academic Department',
+            'gradschool': 'Graduate School',
+            'mentalhealth': 'Mental Health Services',
+            'oeo': 'Office of Equal Opportunity',
+            'admin': 'Administrative Offices',
+            'ada': 'ADA Compliance Office'
+          };
+          
+          panelTitle.textContent = titleMap[sectionId] || (sectionId.charAt(0).toUpperCase() + sectionId.slice(1));
+        }
+        
+        // Update challenges list with departmental issues
+        const challengesList = sectionPanel.querySelector('#section-challenges');
+        if (challengesList) {
+          const challengesMap = {
+            'healthcare': [
+              "Fragmented care between different health units",
+              "Lack of expertise for rare conditions like FND",
+              "Harmful protocol application despite contradicting medical history",
+              "No continuity of care between ER, hospital and outpatient services"
+            ],
+            'drc': [
+              "Accommodations limited to classroom settings only",
+              "No protocols for research environment adaptation",
+              "Undefined implementation responsibility",
+              "Limited coordination with other departments"
+            ],
+            'academic': [
+              "No structure for implementing accommodations in research",
+              "Communication breakdown with PI regarding disability needs",
+              "Research assistantship termination without accommodation process",
+              "Lack of flexibility with remote meetings and lab work schedules"
+            ],
+            'gradschool': [
+              "No graduate-specific disability accommodation procedures",
+              "Pushing for degree downgrade instead of adaptation",
+              "Refusal to serve as interim advisor during transition",
+              "No advocacy for interdisciplinary committee formation"
+            ],
+            'mentalhealth': [
+              "Treatment termination without transition plan",
+              "Referral to external services despite financial limitations",
+              "Failure to coordinate with healthcare during crisis",
+              "No protocol for complex disability cases"
+            ],
+            'oeo': [
+              "Investigation without interim protections",
+              "Months-long delays without updates",
+              "Narrow interpretation of discrimination criteria",
+              "No enforcement mechanisms for resolutions"
+            ],
+            'admin': [
+              "Circular referrals between offices without resolution",
+              "Ambiguous jurisdictional boundaries",
+              "Unwillingness to coordinate with other departments",
+              "Emphasis on procedure over problem-solving"
+            ],
+            'ada': [
+              "Refusal to address graduate research accommodation needs",
+              "Deflection of responsibility to DRC",
+              "No clear protocol for complex disability cases",
+              "Failure to ensure ADA compliance across departments"
+            ]
+          };
+          
+          challengesList.innerHTML = '';
+          
+          const challenges = challengesMap[sectionId] || [];
+          challenges.forEach(challenge => {
+            const li = document.createElement('li');
+            li.textContent = challenge;
+            challengesList.appendChild(li);
+          });
+        }
+        
+        // Update section slider value
+        const sectionSlider = document.getElementById('section-slider');
+        const sectionSliderValue = document.getElementById('section-slider-value');
+        if (sectionSlider && sectionSliderValue) {
+          // Set initial value based on section color
+          const sectionElement = document.getElementById(`${sectionId}-section`);
+          let initialValue = 5.0;
+          
+          if (sectionElement) {
+            const fillColor = sectionElement.getAttribute('fill');
+            if (fillColor === '#a8d08d') { // Green
+              initialValue = 8.0;
+            } else if (fillColor === '#ffe699') { // Yellow
+              initialValue = 5.0;
+            } else if (fillColor === '#f8696b') { // Red
+              initialValue = 2.0;
+            }
+          }
+          
+          sectionSlider.value = initialValue;
+          sectionSliderValue.textContent = initialValue.toFixed(1);
+        }
+        
+        // Show the panel
+        sectionPanel.style.display = 'block';
+      }
+    }
+
+    // Function to show institutional support recommendations based on section
+    function showIndividualSpokeInfo(sectionId) {
+      // Show the overlay
+      const overlay = document.getElementById('panel-overlay');
+      if (overlay) overlay.style.display = 'block';
+      
+      // Show the spoke panel
+      const spokePanel = document.getElementById('spoke-panel');
+      if (spokePanel) {
+        // Update panel title
+        const panelTitle = spokePanel.querySelector('.info-panel-title');
+        if (panelTitle) {
+          const titleMap = {
+            'healthcare': 'Healthcare Navigation Strategies',
+            'drc': 'Effective DRC Engagement Tactics',
+            'academic': 'Academic Department Interactions',
+            'gradschool': 'Graduate School Advocacy Approaches',
+            'mentalhealth': 'Mental Health Support Navigation',
+            'oeo': 'OEO Interaction Strategies',
+            'admin': 'Administrative Office Navigation',
+            'ada': 'ADA Compliance Engagement'
+          };
+          
+          panelTitle.textContent = titleMap[sectionId] || (sectionId.charAt(0).toUpperCase() + sectionId.slice(1) + ' Recommendations');
+        }
+        
+        // Populate recommendations
+        const recommendationsElement = spokePanel.querySelector('#spoke-recommendations');
+        if (recommendationsElement) {
+          const recommendationsMap = {
+            'healthcare': [
+              { title: "Request Comprehensive Records", desc: "Get full medical documentation from all providers to bridge gaps between fragmented systems." },
+              { title: "Bring Advocate to Appointments", desc: "Have someone accompany you who can help communicate needs and document responses." },
+              { title: "Create Medical History Card", desc: "Prepare a concise summary of your conditions for emergency situations." },
+              { title: "Request Care Coordination", desc: "Explicitly ask for a designated coordinator between different health units." }
+            ],
+            'drc': [
+              { title: "Request Research-Specific Accommodations", desc: "Ask for written guidelines on how DRC accommodations apply to research settings." },
+              { title: "Involve Third-Party Advocate", desc: "Bring an outside advocate to DRC meetings who can help articulate research-specific needs." },
+              { title: "Document All Communication", desc: "Keep detailed records of all interactions, recommendations, and promises." },
+              { title: "Request DRC-Department Liaison", desc: "Ask for a designated person to facilitate implementation in your department." }
+            ],
+            'academic': [
+              { title: "Document All Meetings", desc: "Record dates, participants, and outcomes of all departmental discussions about accommodations." },
+              { title: "Establish Communication Protocols", desc: "Create written agreements about preferred communication methods and response times." },
+              { title: "Request Clear Expectations", desc: "Ask for written research expectations that incorporate accommodation needs." },
+              { title: "Identify Departmental Advocate", desc: "Find a faculty member who can advocate for your needs within department meetings." }
+            ],
+            'gradschool': [
+              { title: "Leverage External Faculty", desc: "Connect with faculty outside your department who may be more supportive of disability needs." },
+              { title: "Document Degree Requirements", desc: "Get written confirmation of all requirements and potential modifications." },
+              { title: "Request Committee Guidelines", desc: "Ask for written guidelines on forming interdisciplinary committees for disability-related research." },
+              { title: "Appeal Directly to Dean", desc: "Bypass department barriers by appealing directly to Graduate School leadership." }
+            ],
+            'mentalhealth': [
+              { title: "Request External Referrals List", desc: "Ask for a comprehensive list of external providers who work on sliding scale." },
+              { title: "Document Termination Reasons", desc: "Get written explanation of why services are being terminated and what alternatives exist." },
+              { title: "Request Coordination Permission", desc: "Sign release forms allowing communication between mental health and other university services." },
+              { title: "Identify Crisis Protocol", desc: "Get written instructions for handling crisis situations when primary services are unavailable." }
+            ],
+            'oeo': [
+              { title: "Request Investigation Timeline", desc: "Ask for a written timeline of investigation steps and expected resolution dates." },
+              { title: "Request Interim Measures", desc: "Formally request protective measures during investigation periods." },
+              { title: "Document All Evidence", desc: "Keep organized records of all discrimination evidence, including emails and meeting notes." },
+              { title: "Request Regular Updates", desc: "Ask for bi-weekly status updates on investigation progress." }
+            ],
+            'admin': [
+              { title: "Create Responsibility Map", desc: "Document which offices are responsible for which aspects of your accommodations." },
+              { title: "CC Multiple Offices", desc: "Include all relevant parties in email communications to prevent deflection." },
+              { title: "Request Joint Meeting", desc: "Ask the Ombud to coordinate a joint meeting with all relevant offices." },
+              { title: "Document Referral Chain", desc: "Track all instances of being referred between offices without resolution." }
+            ],
+            'ada': [
+              { title: "Reference Specific Regulations", desc: "Cite specific ADA Title II and Section 504 requirements in communications." },
+              { title: "Request Written Policies", desc: "Ask for the written university policy on accommodations in research settings." },
+              { title: "Document Interactive Process", desc: "Keep detailed records of all accommodation discussions and university responses." },
+              { title: "Request Coordination Role", desc: "Ask the ADA office to designate a coordinator for your specific situation." }
+            ]
+          };
+          
+          recommendationsElement.innerHTML = '';
+          
+          const recommendations = recommendationsMap[sectionId] || [];
+          recommendations.forEach(rec => {
+            const div = document.createElement('div');
+            div.className = 'recommendation-item';
+            
+            const title = document.createElement('div');
+            title.className = 'recommendation-title';
+            title.textContent = rec.title;
+            
+            const desc = document.createElement('div');
+            desc.className = 'recommendation-desc';
+            desc.textContent = rec.desc;
+            
+            div.appendChild(title);
+            div.appendChild(desc);
+            recommendationsElement.appendChild(div);
+          });
+        }
+
+        // Populate contacts
+        const contactsElement = spokePanel.querySelector('#contact-list');
+        if (contactsElement) {
+          const contactsMap = {
+            'healthcare': {
+              trusted: ["Patient Advocacy Office", "University Ombudsman"],
+              professional: ["National Disability Rights Network", "FND Hope International"]
+            },
+            'drc': {
+              trusted: ["ADA Compliance Office", "Faculty Advocate"],
+              professional: ["Office for Civil Rights (Dept of Education)", "National Center for College Students with Disabilities"]
+            },
+            'academic': {
+              trusted: ["Department Disability Liaison", "Graduate Student Association"],
+              professional: ["Faculty Mentoring Network", "Academic Accommodations Consultant"]
+            },
+            'gradschool': {
+              trusted: ["Dean of Graduate Studies", "Graduate Student Ombudsperson"],
+              professional: ["Council of Graduate Schools", "Accessible Graduate Education Alliance"]
+            },
+            'mentalhealth': {
+              trusted: ["Community Crisis Services", "Peer Support Network"],
+              professional: ["National Alliance on Mental Illness", "Psychology Today Provider Directory"]
+            },
+            'oeo': {
+              trusted: ["Civil Rights Compliance Office", "Student Legal Services"],
+              professional: ["Equal Employment Opportunity Commission", "Office for Civil Rights"]
+            },
+            'admin': {
+              trusted: ["University Ombudsman", "Student Affairs Office"],
+              professional: ["Educational Opportunity Advocates", "Higher Education Access Coalition"]
+            },
+            'ada': {
+              trusted: ["Disability Law Center", "University Legal Counsel"],
+              professional: ["ADA National Network", "Disability Rights Education & Defense Fund"]
+            }
+          };
+          
+          contactsElement.innerHTML = '';
+          
+          const contacts = contactsMap[sectionId] || { trusted: [], professional: [] };
+          
+          // Add trusted contacts
+          contacts.trusted.forEach(contact => {
+            const button = document.createElement('button');
+            button.className = 'contact-button';
+            button.textContent = contact;
+            button.onclick = function() { alert(`Connecting with ${contact}...`); };
+            contactsElement.appendChild(button);
+          });
+          
+          // Add professional contacts
+          contacts.professional.forEach(contact => {
+            const button = document.createElement('button');
+            button.className = 'contact-button professional-button';
+            button.textContent = contact;
+            button.onclick = function() { alert(`Information about ${contact}...`); };
+            contactsElement.appendChild(button);
+          });
+        }
+        
+        // Show the panel
+        spokePanel.style.display = 'block';
+      }
+    }
+
+    // Function to show critical breakthrough information when clicking on red lines
+    function showBreakthroughInfo(crisisId) {
+      // Define crisis data for breakthrough lines
+      const crisisData = {
+        'diagnosis': {
+          title: "PNES Diagnosis Crisis",
+          date: "Jan 2023",
+          description: "Following seizures, diagnosed with Psychogenic Non-Epileptic Seizures (PNES), a type of Functional Neurological Disorder (FND) at UK Hospital's level 4 epilepsy unit. After diagnosis, was discharged without coordinated care plan.",
+          quote: "I was discharged to navigate a labyrinth of fragmented services alone. I was advised to go to the University Health Services (UHS) for Cognitive Behavioral Therapy because there was nothing, they could offer me.",
+          details: "The diagnosis of FND indicated a serious condition requiring coordinated care, but resulted in healthcare fragmentation:",
+          timeline: [
+            { date: "Jan 2023", content: "Initial seizures led to ER visit and overnight stay" },
+            { date: "Late Jan 2023", content: "Video-EEG monitoring at UK's level 4 epilepsy unit" },
+            { date: "End of Jan 2023", content: "PNES diagnosis with no treatment plan" },
+            { date: "Feb 2023", content: "UHS referral to UK Counseling Center (UKCC)" },
+            { date: "Mar 2023", content: "UKCC pointed out potential Autism but terminated care citing 'lack of expertise'" }
+          ],
+          metrics: {
+            "Days Without Treatment Plan": 45,
+            "Referrals Without Follow-up": 3,
+            "Information Handoffs Failed": 7,
+            "Health Impact Severity": "High",
+            "Institutional Response Grade": "F"
+          }
+        },
+        'handcuffing': {
+          title: "Psychiatric Detention Crisis",
+          date: "Sep 2023",
+          description: "After experiencing a seizure, self-presented to University Health Services (UHS). Instead of appropriate care, was stripped into a hospital gown at Good Samaritan Hospital, then handcuffed and transported by sheriffs to Eastern State Hospital.",
+          quote: "I was stripped into a hospital gown at Good Samaritan Hospital, then handcuffed and transported by sheriffs to Eastern State Hospital in the middle of the night. I looked out the window as I wondered how on earth, I had gotten to this point of being taken like a criminal to an unfamiliar location in a foreign country.",
+          details: "Despite being within UK's healthcare system with documented PNES history, staff ignored crucial medical information and implemented harmful protocols:",
+          timeline: [
+            { date: "Sep 2023", content: "Seizure in lab, leading to mental health deterioration" },
+            { date: "Sep 2023", content: "Self-presented to UHS seeking help, with 'JESUS' written on wrists to prevent self-harm" },
+            { date: "Sep 2023 (night)", content: "Stripped into hospital gown and handcuffed" },
+            { date: "Sep 2023 (late night)", content: "Transported by sheriff to Eastern State Hospital" },
+            { date: "Sep 2023", content: "After hours in freezing room, experienced back-to-back seizures that were ignored" },
+            { date: "Sep 2023", content: "Subject to traumatic and inappropriate ER interventions" }
+          ],
+          metrics: {
+            "Policy Violations": 5,
+            "Patient Rights Violations": 8,
+            "Information System Failures": 4,
+            "Physical Injury Duration": "4 weeks",
+            "Trauma Level": "Severe"
+          }
+        },
+        'suicide': {
+          title: "Suicide Attempt",
+          date: "Jan 2024",
+          description: "After months of institutional neglect and deteriorating mental health, attempted suicide. Rather than seeking institutional help again, self-harmed with a razor while on a call with a friend who intervened.",
+          quote: "I could not turn myself in again, I would rather die. Consequently, as I got out a brand-new razor and surveyed my wrist, I called a friend while I watched how my green pulsing vein flayed layer by layer with each slice.",
+          details: "This crisis represented the culmination of institutional failures across multiple university systems:",
+          timeline: [
+            { date: "Dec 2023", content: "Increasing depression and anxiety from institutional barriers" },
+            { date: "Jan 1, 2024", content: "Suicide attempt with razor while on phone with friend" },
+            { date: "Jan 2024", content: "Friend intervened and took to ER" },
+            { date: "Jan 26, 2024", content: "Medical notes indicate 'emotionally exhausted for several months' and 'thoughts of not wanting to wake up more consistently present'" },
+            { date: "Jan 2024", content: "Diagnosed with Major Depressive Disorder (MDD) and Chronic Fatigue Syndrome (CFS)" }
+          ],
+          metrics: {
+            "Warning Signs Ignored": 12,
+            "Intervention Opportunities Missed": 7,
+            "System Coordination Failures": 9,
+            "Response Time": "None",
+            "Preventability Rating": "100%"
+          }
+        },
+        'assistantship': {
+          title: "Research Assistantship Termination",
+          date: "Feb 2024",
+          description: "Principal Investigator (PI) terminated research assistantship without any accommodation deliberation process. When asked about future plans, PI responded with 'I don't know.' Director of Graduate Studies (DGS) later suggested Master's as the only option.",
+          quote: "My PI was done with me, my DGS couldn't care less, the message was clear: get out, PhD research in UKY is no place for people like you.",
+          details: "This event demonstrated how the lack of disability accommodation structures in research environments led to discrimination:",
+          timeline: [
+            { date: "Dec 2023", content: "PI stopped responding to emails about remote meetings and flexible lab schedule" },
+            { date: "Feb 2024", content: "Research assistantship terminated without accommodation process" },
+            { date: "Feb 2024", content: "When asked about future beyond funding end in June, PI responded 'I don't know'" },
+            { date: "May 2024", content: "DGS suggested Master's as only option rather than accommodation" },
+            { date: "May 2024", content: "No interest shown in exploring accommodations for PhD continuation" }
+          ],
+          metrics: {
+            "ADA Violations": 5,
+            "Documentation Failures": 9,
+            "Financial Loss": "$18,000+",
+            "Academic Progress Delay": "8 months",
+            "Career Impact Severity": "Critical"
+          }
+        },
+        'investigation': {
+          title: "Investigation Without Protection",
+          date: "Aug 2024",
+          description: "Office of Equal Opportunity (OEO) began investigation but provided no interim protection or accommodations. Investigation continued without regard for protecting the complainant, who was left without support.",
+          quote: "The so-called investigation continued without regard for protection and supporting of the student who was potentially being discriminated against. Like a police investigation with the prime witness left to roam around in the same neighborhood of the crime; very trustworthy according to UKY standards.",
+          details: "This process revealed the fundamental failures in the university's discrimination complaint process:",
+          timeline: [
+            { date: "Aug 2024", content: "OEO investigation began after staff member raised concerns" },
+            { date: "Aug 2024", content: "No interim measures or protections provided" },
+            { date: "Aug 22, 2024", content: "Academic ombud suggested registration with DGS as default advisor" },
+            { date: "Aug 23, 2024", content: "DGS stated inability to evaluate research without primary advisor" },
+            { date: "Aug 27, 2024", content: "DRC consultant suggested options were running out" },
+            { date: "Dec 2024", content: "After 5 months, OEO determined everything was 'fair'" }
+          ],
+          metrics: {
+            "Days Without Protection": 147,
+            "Communications Ignored": 12,
+            "Policy Violations": 8,
+            "Additional Health Incidents": 3,
+            "Academic Time Lost": "1 semester"
+          }
+        }
+      };
+
+     // Create or get crisis panel
+     let crisisPanel = document.getElementById('crisis-panel');
+      if (!crisisPanel) {
+        crisisPanel = document.createElement('div');
+        crisisPanel.id = 'crisis-panel';
+        crisisPanel.className = 'crisis-panel';
+        document.body.appendChild(crisisPanel);
+      }
+      
+      const crisis = crisisData[crisisId];
+      if (!crisis) return;
+      
+      // Create crisis panel content
+      crisisPanel.innerHTML = `
+        <div class="crisis-header">
+          <h2 class="crisis-title">${crisis.title}</h2>
+          <span class="crisis-date">${crisis.date}</span>
+          <button class="close-panel" onclick="document.getElementById('crisis-panel').style.display='none'; document.getElementById('panel-overlay').style.display='none';">&times;</button>
+        </div>
+        
+        <div class="crisis-content">
+          <p>${crisis.description}</p>
+          <p class="crisis-quote">${crisis.quote}</p>
+          
+          <div class="crisis-details">
+            <h3>What Happened</h3>
+            <p>${crisis.details}</p>
+            
+            <div class="crisis-timeline">
+              ${crisis.timeline.map(entry => `
+                <div class="timeline-entry">
+                  <div class="entry-date">${entry.date}</div>
+                  <div class="entry-content">${entry.content}</div>
+                </div>
+              `).join('')}
+            </div>
+          </div>
+          
+          <div class="crisis-impact">
+            <h3>Impact Metrics</h3>
+            <div class="metrics-grid">
+              ${Object.entries(crisis.metrics).map(([key, value]) => `
+                <div class="metric-item">
+                  <div class="metric-value">${value}</div>
+                  <div class="metric-label">${key}</div>
+                </div>
+              `).join('')}
+            </div>
+          </div>
+          
+          <div style="text-align: center; margin-top: 20px;">
+            <button class="connect-btn" onclick="connectToCrisis('${crisisId}')">Connect</button>
+            <button class="view-full-impact-btn" onclick="showFullImpactPanel('${crisisId}')">View Full Impact</button>
+          </div>
+        </div>
+      `;
+      
+      // Show the overlay
+      const overlay = document.getElementById('panel-overlay');
+      if (overlay) overlay.style.display = 'block';
+      
+      // Show the crisis panel
+      crisisPanel.style.display = 'block';
+    }
+    
+    // Function to connect to crisis resources
+    function connectToCrisis(crisisId) {
+      const crisisTypes = {
+        'diagnosis': 'healthcare',
+        'handcuffing': 'healthcare',
+        'suicide': 'mental',
+        'assistantship': 'academic',
+        'investigation': 'oeo'
+      };
+      
+      const department = crisisTypes[crisisId] || 'healthcare';
+      alert(`Connecting you with relevant resources for ${department}. A case manager will be assigned to help coordinate your care across departments.`);
+    } 
+
+    // Function to show system-wide impact analysis
+    function showFullImpactPanel(id) {
+      // Create or get full impact panel
+      let impactPanel = document.getElementById('full-impact-panel');
+      if (!impactPanel) {
+        impactPanel = document.createElement('div');
+        impactPanel.id = 'full-impact-panel';
+        impactPanel.className = 'crisis-panel';
+        document.body.appendChild(impactPanel);
+      }
+      
+      // Define the impact data with timeline and metrics
+      const fullImpactData = {
+        'overall': {
+          title: "System-Wide Impact Analysis",
+          timelineData: {
+            past: [
+              { date: "Jan 2023", event: "PNES Diagnosis", impact: "No coordination", outcome: "Lost 45 days without treatment" },
+              { date: "Sep 2023", event: "Psychiatric Detention", impact: "Traumatic medical response", outcome: "Physical injury, PTSD" },
+              { date: "Jan 2024", event: "Suicide Attempt", impact: "Mental health breakdown", outcome: "Life-threatening crisis" }
+            ],
+            present: [
+              { date: "Current", event: "Ongoing Fragmentation", impact: "Time & energy drain", outcome: "Lost academic progress" },
+              { date: "Current", event: "Multiple Diagnoses", impact: "Complex healthcare needs", outcome: "No coordinated care" },
+              { date: "Current", event: "Research Barriers", impact: "Accommodation gaps", outcome: "Research potential unrealized" }
+            ],
+            future: [
+              { date: "Near Future", event: "Financial Impact", impact: "Loss of funding", outcome: "Potential program exit" },
+              { date: "Medium Term", event: "Career Impact", impact: "Delayed graduation", outcome: "Diminished opportunities" },
+              { date: "Long Term", event: "System Impact", impact: "Continued discrimination", outcome: "Other students affected" }
+            ]
+          },
+          lossData: {
+            individual: [
+              { category: "Health", lost: 85, being_lost: 65, will_be_lost: 90 },
+              { category: "Academic", lost: 70, being_lost: 80, will_be_lost: 95 },
+              { category: "Financial", lost: 60, being_lost: 75, will_be_lost: 85 },
+              { category: "Career", lost: 50, being_lost: 70, will_be_lost: 90 }
+            ],
+            system: [
+              { category: "Compliance", lost: 75, being_lost: 85, will_be_lost: 95 },
+              { category: "Reputation", lost: 65, being_lost: 75, will_be_lost: 90 },
+              { category: "Inclusion", lost: 80, being_lost: 85, will_be_lost: 90 },
+              { category: "Innovation", lost: 70, being_lost: 75, will_be_lost: 85 }
+            ]
+          },
+          adapThermPrevention: [
+            { metric: "Coordination Time", current: 93, withAdapTherm: 14 },
+            { metric: "Health Incidents", current: 12, withAdapTherm: 2 },
+            { metric: "Accommodation Success", current: 28, withAdapTherm: 92 },
+            { metric: "Student Retention", current: 37, withAdapTherm: 95 }
+          ]
+        },
+        'healthcare': {
+          title: "Healthcare System Impact Analysis",
+          timelineData: {
+            past: [
+              { date: "Jan 2023", event: "PNES Diagnosis", impact: "No coordination", outcome: "Lost 45 days without treatment" },
+              { date: "Feb 2023", event: "Fragmented Referrals", impact: "No follow-through", outcome: "Continued symptoms" },
+              { date: "Sep 2023", event: "Psychiatric Detention", impact: "Wrong intervention", outcome: "Medical trauma" }
+            ],
+            present: [
+              { date: "Current", event: "Multiple Diagnoses", impact: "Uncoordinated treatment", outcome: "Conflicting medications" },
+              { date: "Current", event: "Symptom Management", impact: "Trial and error approach", outcome: "Preventable crises" }
+            ],
+            future: [
+              { date: "Near Future", event: "Health Deterioration", impact: "Unmanaged symptoms", outcome: "Increased incidents" },
+              { date: "Long Term", event: "Chronic Condition", impact: "No expertise development", outcome: "Permanent disability" }
+            ]
+          },
+          lossData: {
+            individual: [
+              { category: "Physical Health", lost: 75, being_lost: 65, will_be_lost: 80 },
+              { category: "Mental Health", lost: 85, being_lost: 75, will_be_lost: 90 },
+              { category: "Treatment Access", lost: 70, being_lost: 60, will_be_lost: 85 },
+              { category: "Healthcare Trust", lost: 90, being_lost: 80, will_be_lost: 95 }
+            ],
+            system: [
+              { category: "Care Quality", lost: 75, being_lost: 80, will_be_lost: 85 },
+              { category: "Patient Safety", lost: 85, being_lost: 70, will_be_lost: 90 },
+              { category: "Legal Liability", lost: 65, being_lost: 75, will_be_lost: 95 },
+              { category: "Expert Knowledge", lost: 80, being_lost: 85, will_be_lost: 90 }
+            ]
+          },
+          adapThermPrevention: [
+            { metric: "Coordination Failures", current: 12, withAdapTherm: 2 },
+            { metric: "Treatment Delays (days)", current: 45, withAdapTherm: 7 },
+            { metric: "Information Handoff Errors", current: 8, withAdapTherm: 1 },
+            { metric: "Patient Safety Incidents", current: 3, withAdapTherm: 0 }
+          ]
+        }
+        // Additional sections would be defined similarly
+      };
+
+      // Default to overall data if specific id not found
+      if (!fullImpactData[id]) id = 'overall';
+      
+      // Get the impact data
+      const data = fullImpactData[id];
+      
+      // Create the panel content with timeline, loss visualization, and prevention metrics
+      impactPanel.innerHTML = `
+        <div class="crisis-header">
+          <h2 class="crisis-title">${data.title}</h2>
+          <button class="close-panel" onclick="document.getElementById('full-impact-panel').style.display='none'; document.getElementById('panel-overlay').style.display='none';">&times;</button>
+        </div>
+        
+        <div class="crisis-content">
+          <div class="impact-section">
+            <h3>Timeline of Impact</h3>
+            <div class="impact-timeline">
+              <div class="timeline-section">
+                <h4>What Was Lost</h4>
+                <div class="timeline-events">
+                  ${data.timelineData.past.map(item => `
+                    <div class="timeline-event">
+                      <div class="event-date">${item.date}</div>
+                      <div class="event-content">
+                        <strong>${item.event}</strong>
+                        <div class="event-impact">${item.impact}</div>
+                        <div class="event-outcome">${item.outcome}</div>
+                      </div>
+                    </div>
+                  `).join('')}
+                </div>
+              </div>
+              
+              <div class="timeline-section">
+                <h4>What Is Being Lost</h4>
+                <div class="timeline-events">
+                  ${data.timelineData.present.map(item => `
+                    <div class="timeline-event">
+                      <div class="event-date">${item.date}</div>
+                      <div class="event-content">
+                        <strong>${item.event}</strong>
+                        <div class="event-impact">${item.impact}</div>
+                        <div class="event-outcome">${item.outcome}</div>
+                      </div>
+                    </div>
+                  `).join('')}
+                </div>
+              </div>
+              
+              <div class="timeline-section">
+                <h4>What Will Be Lost</h4>
+                <div class="timeline-events">
+                  ${data.timelineData.future.map(item => `
+                    <div class="timeline-event">
+                      <div class="event-date">${item.date}</div>
+                      <div class="event-content">
+                        <strong>${item.event}</strong>
+                        <div class="event-impact">${item.impact}</div>
+                        <div class="event-outcome">${item.outcome}</div>
+                      </div>
+                    </div>
+                  `).join('')}
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <div class="impact-section">
+            <h3>Impact Visualization</h3>
+            <div class="impact-tabs">
+              <button class="impact-tab active" onclick="switchImpactTab(this, 'individual')">Individual Impact</button>
+              <button class="impact-tab" onclick="switchImpactTab(this, 'system')">System Impact</button>
+            </div>
+            
+            <div class="impact-content active" id="individual-impact">
+              <div class="impact-chart-container" style="height: 300px;">
+                <canvas id="individual-loss-chart"></canvas>
+              </div>
+            </div>
+            
+            <div class="impact-content" id="system-impact">
+              <div class="impact-chart-container" style="height: 300px;">
+                <canvas id="system-loss-chart"></canvas>
+              </div>
+            </div>
+          </div>
+          
+          <div class="impact-section">
+            <h3>What AdapTherm Would Prevent</h3>
+            <div class="impact-chart-container" style="height: 300px;">
+              <canvas id="adaptherm-prevention-chart"></canvas>
+            </div>
+          </div>
+          
+          <div class="impact-section">
+            <h3>Connect With Resources</h3>
+            <p>Based on this impact analysis, we recommend connecting with:</p>
+            <div style="display: flex; flex-wrap: wrap; gap: 10px; margin-top: 15px;">
+              <button class="connect-btn" onclick="connectToResource('Case Manager')">Connect with Case Manager</button>
+              <button class="connect-btn" onclick="connectToResource('Advocacy')">Connect with Advocacy</button>
+              <button class="connect-btn" onclick="connectToResource('Legal Support')">Connect with Legal Support</button>
+            </div>
+          </div>
+        </div>
+      `;
+      
+      // Show overlay and panel
+      const overlay = document.getElementById('panel-overlay');
+      if (overlay) overlay.style.display = 'block';
+      impactPanel.style.display = 'block';
+      
+      // Create charts after panel is visible
+      setTimeout(() => {
+        createImpactCharts(id, data);
+      }, 100);
+    }
+    
+    // Function to handle resource connections
+    function connectToResource(resource) {
+      alert(`Connecting you with ${resource}. A coordinator will contact you within 24 hours.`);
+    }
+
+    // Function to switch between individual and system impact tabs
+    function switchImpactTab(tabButton, tabName) {
+      // Get all tabs and content elements
+      const tabs = document.querySelectorAll('.impact-tab');
+      const contents = document.querySelectorAll('.impact-content');
+      
+      // Remove active class from all tabs and contents
+      tabs.forEach(tab => tab.classList.remove('active'));
+      contents.forEach(content => content.classList.remove('active'));
+      
+      // Add active class to selected tab
+      tabButton.classList.add('active');
+      
+      // Show selected content
+      document.getElementById(`${tabName}-impact`).classList.add('active');
+    }
+    
+    // Function to create impact charts
+    function createImpactCharts(id, data) {
+      if (typeof Chart === 'undefined' || !data) return;
+      
+      // Create Individual Loss Chart
+      const individualCanvas = document.getElementById('individual-loss-chart');
+      if (individualCanvas) {
+        new Chart(individualCanvas, {
+          type: 'bar',
+          data: {
+            labels: data.lossData.individual.map(item => item.category),
+            datasets: [
+              {
+                label: 'Lost',
+                data: data.lossData.individual.map(item => item.lost),
+                backgroundColor: '#f44336',
+              },
+              {
+                label: 'Being Lost',
+                data: data.lossData.individual.map(item => item.being_lost),
+                backgroundColor: '#ff9800',
+              },
+              {
+                label: 'Will Be Lost',
+                data: data.lossData.individual.map(item => item.will_be_lost),
+                backgroundColor: '#f06292',
+              }
+            ]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+              y: {
+                beginAtZero: true,
+                max: 100,
+                title: {
+                  display: true,
+                  text: 'Impact Severity (%)'
+                }
+              }
+            },
+            plugins: {
+              title: {
+                display: true,
+                text: 'Individual Impact Over Time'
+              }
+            }
+          }
+        });
+      }
+      
+      // Create System Loss Chart
+      const systemCanvas = document.getElementById('system-loss-chart');
+      if (systemCanvas) {
+        new Chart(systemCanvas, {
+          type: 'bar',
+          data: {
+            labels: data.lossData.system.map(item => item.category),
+            datasets: [
+              {
+                label: 'Lost',
+                data: data.lossData.system.map(item => item.lost),
+                backgroundColor: '#f44336',
+              },
+              {
+                label: 'Being Lost',
+                data: data.lossData.system.map(item => item.being_lost),
+                backgroundColor: '#ff9800',
+              },
+              {
+                label: 'Will Be Lost',
+                data: data.lossData.system.map(item => item.will_be_lost),
+                backgroundColor: '#f06292',
+              }
+            ]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+              y: {
+                beginAtZero: true,
+                max: 100,
+                title: {
+                  display: true,
+                  text: 'Impact Severity (%)'
+                }
+              }
+            },
+            plugins: {
+              title: {
+                display: true,
+                text: 'System Impact Over Time'
+              }
+            }
+          }
+        });
+      }
+
+      // Create AdapTherm Prevention Chart
+      const adapThermCanvas = document.getElementById('adaptherm-prevention-chart');
+      if (adapThermCanvas) {
+        new Chart(adapThermCanvas, {
+          type: 'bar',
+          data: {
+            labels: data.adapThermPrevention.map(item => item.metric),
+            datasets: [
+              {
+                label: 'Current System',
+                data: data.adapThermPrevention.map(item => item.current),
+                backgroundColor: '#f44336',
+              },
+              {
+                label: 'With AdapTherm',
+                data: data.adapThermPrevention.map(item => item.withAdapTherm),
+                backgroundColor: '#4caf50',
+              }
+            ]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+              y: {
+                beginAtZero: true,
+                title: {
+                  display: true,
+                  text: 'Performance Metrics'
+                }
+              }
+            },
+            plugins: {
+              title: {
+                display: true,
+                text: 'AdapTherm Prevention Impact'
+              }
+            }
+          }
+        });
+      }
+    }
+    
+    // Function to update individual hub visualization
+    function updateIndividualHubVisualization(position, variability) {
+      const hubCircle = document.getElementById('individual-hub-circle');
+      const hubBorder = document.getElementById('individual-hub-border');
+      
+      if (hubCircle && hubBorder) {
+        // Calculate color based on position (0 is green, extremes are red/blue)
+        let hubColor;
+        const absPosition = Math.abs(position);
+        
+        if (absPosition < 2) {
+          hubColor = "#4caf50"; // Green for balanced
+        } else if (absPosition < 4) {
+          hubColor = position > 0 ? "#8bc34a" : "#2196f3"; // Light green/blue for slight imbalance
+        } else if (absPosition < 6) {
+          hubColor = position > 0 ? "#ffc107" : "#03a9f4"; // Yellow/blue for moderate imbalance
+        } else if (absPosition < 8) {
+          hubColor = position > 0 ? "#ff9800" : "#673ab7"; // Orange/purple for significant imbalance
+        } else {
+          hubColor = position > 0 ? "#f44336" : "#3f51b5"; // Red/indigo for extreme imbalance
+        }
+        
+        // Update hub color
+        hubCircle.setAttribute("fill", hubColor);
+        
+        // Update hub border thickness based on variability (stability)
+        // Higher variability (less stability) = thinner border
+        const borderWidth = Math.max(2, 15 - variability);
+        hubBorder.setAttribute("stroke-width", borderWidth);
+        
+        // Also subtly adjust hub size based on stability (more stable = slightly larger)
+        const hubSize = 70 - (variability / 2); // Base size is 70, reduce slightly with higher variability
+        hubCircle.setAttribute("r", hubSize);
+        hubBorder.setAttribute("r", hubSize + 5); // Border is slightly larger than hub
+      }
+    }
+
+    // Emergency panel recommendations for the Individual tab
+    const individualInterventionsBySystem = {
+      'healthcare': [
+        "Request complete copies of all medical records",
+        "Ask for a patient advocate to coordinate care",
+        "Document all treatment recommendations and referrals",
+        "Create an emergency care plan with specific protocols for FND/PNES",
+        "Bring a trusted friend to all medical appointments",
+        "Request a neurologist experienced with functional disorders"
+      ],
+      'accommodation': [
+        "Request accommodations in writing with delivery confirmation",
+        "Ask which office is responsible for implementation",
+        "Document all accommodation discussions and promises",
+        "CC multiple departments in all accommodation communications",
+        "Request specific accommodations for research settings",
+        "Ask for flexible attendance and remote participation options"
+      ],
+      'academic': [
+        "Request written clarification of academic expectations",
+        "Document all meetings with faculty and advisors",
+        "Ask the ombudsperson to facilitate department communications",
+        "Request accommodations specific to research environment",
+        "Create a written work plan with flexibility built in",
+        "Inquire about deadline extensions before they're needed"
+      ],
+      'coordination': [
+        "Ask ombudsperson to coordinate a multi-office meeting",
+        "Create a contact list of all involved departments",
+        "Request written clarification of each office's responsibilities",
+        "Document all instances of being referred between offices",
+        "Involve external advocacy organization for support",
+        "Request a single point of contact for your case"
+      ],
+      'mental': [
+        "Contact crisis services if experiencing suicidal thoughts: 988",
+        "Document impact of institutional stress on your health",
+        "Request medical leave paperwork if needed",
+        "Ask for referrals to external mental health providers",
+        "Practice grounding techniques during stressful interactions",
+        "Create a safety plan with trusted people in your network"
+      ],
+      'financial': [
+        "Contact financial aid office about hardship options",
+        "Document all additional expenses caused by disability barriers",
+        "Request emergency funding for disability-related needs",
+        "Research external scholarships for disabled students",
+        "Consider filing for disability-related loan deferment",
+        "Request itemized invoices for all medical costs"
+      ],
+      'visa': [
+        "Contact international student office about medical reduced course load",
+        "Document all communications about visa status",
+        "Request written clarification of visa requirements during medical issues",
+        "Connect with international student advocacy groups",
+        "Consult with immigration attorney about medical exceptions",
+        "Ask about extensions for international student requirements"
+      ]
+    };
+    
+    // Function to update individual recommendations
+    function updateIndividualRecommendations() {
+      // Get active symptom buttons
+      const activeButtons = document.querySelectorAll('#individual .symptom-button.active');
+      
+      // Get custom description
+      const textarea = document.querySelector('#individual .custom-description');
+      if (!textarea) return;
+      
+      const customText = textarea.value.toLowerCase();
+      
+      // Array to collect unique interventions with categories
+      const categorizedInterventions = {};
+      
+      // Keyword map for analyzing text input
+      const keywordMap = {
+        // Healthcare related keywords
+        "hospital": "healthcare", "doctor": "healthcare", "medical": "healthcare", 
+        "diagnosis": "healthcare", "treatment": "healthcare", "seizure": "healthcare",
+        "emergency": "healthcare", "medication": "healthcare", "pnes": "healthcare",
+        "fnd": "healthcare", "neurological": "healthcare", "functional": "healthcare",
+        
+        // Accommodation related keywords
+        "accommodation": "accommodation", "drc": "accommodation", "disability": "accommodation",
+        "ada": "accommodation", "access": "accommodation", "barrier": "accommodation",
+        "section 504": "accommodation", "modification": "accommodation",
+        
+        // Academic related keywords
+        "professor": "academic", "advisor": "academic", "research": "academic",
+        "lab": "academic", "course": "academic", "class": "academic", "department": "academic",
+        "pi": "academic", "dgs": "academic", "assistantship": "academic", "termination": "academic",
+        
+        // Coordination related keywords
+        "coordinate": "coordination", "refer": "coordination", "office": "coordination",
+        "bureaucracy": "coordination", "paperwork": "coordination", "process": "coordination",
+        "referral": "coordination", "silo": "coordination", "fragmented": "coordination",
+        
+        // Mental health related keywords
+        "stress": "mental", "anxiety": "mental", "depression": "mental", 
+        "suicide": "mental", "therapist": "mental", "counselor": "mental",
+        "overwhelm": "mental", "crisis": "mental", "mdd": "mental", 
+        "cptsd": "mental", "trauma": "mental", "ukcc": "mental",
+        
+        // Financial related keywords
+        "money": "financial", "fund": "financial", "pay": "financial",
+        "cost": "financial", "afford": "financial", "expense": "financial",
+        "stipend": "financial", "tuition": "financial", "insurance": "financial",
+        
+        // International/visa related keywords
+        "visa": "visa", "international": "visa", "foreign": "visa",
+        "country": "visa", "immigrant": "visa", "status": "visa",
+        "i-20": "visa", "sevis": "visa", "home": "visa"
+      };
+
+      // Add interventions from active buttons
+      activeButtons.forEach(button => {
+        const system = button.dataset.system;
+        if (system && individualInterventionsBySystem[system]) {
+          if (!categorizedInterventions[system]) {
+            categorizedInterventions[system] = [];
+          }
+          
+          // Add unique interventions
+          individualInterventionsBySystem[system].forEach(intervention => {
+            if (!categorizedInterventions[system].includes(intervention)) {
+              categorizedInterventions[system].push(intervention);
+            }
+          });
+        }
+      });
+      
+      // Add interventions based on text analysis
+      for (const [keyword, system] of Object.entries(keywordMap)) {
+        if (customText.includes(keyword) && individualInterventionsBySystem[system]) {
+          if (!categorizedInterventions[system]) {
+            categorizedInterventions[system] = [];
+          }
+          
+          // Add unique interventions
+          individualInterventionsBySystem[system].forEach(intervention => {
+            if (!categorizedInterventions[system].includes(intervention)) {
+              categorizedInterventions[system].push(intervention);
+            }
+          });
+        }
+      }
+      
+      // Update the recommendations display
+      const immediateList = document.getElementById('individual-immediate-interventions');
+      if (!immediateList) return;
+      
+      // Clear previous recommendations
+      immediateList.innerHTML = '';
+      
+      // Office related interventions that need checkboxes
+      const officeRelatedKeywords = [
+        'drc', 'office', 'ada', 'ombud', 'ombudsperson', 'graduate', 'school', 
+        'coordinator', 'department', 'chair', 'dean', 'director', 'advisor', 'pi',
+        'disability', 'resource', 'center', 'compliance', 'affairs', 'academic',
+        'faculty', 'financial', 'aid', 'international', 'counseling', 'health'
+      ];
+      
+      // Add new recommendations, ALL with checkboxes
+      if (Object.keys(categorizedInterventions).length > 0) {
+        // First add the "solution map" concept
+        const infoDiv = document.createElement('div');
+        infoDiv.className = 'solution-map-info';
+        infoDiv.innerHTML = `
+          <p style="font-size: 14px; font-style: italic; margin-bottom: 15px; color: #4a6fa5;">
+            Check boxes next to actions and click "Routes" to see a coordination pathway through the system.
+          </p>
+        `;
+        immediateList.appendChild(infoDiv);
+        
+        // Get the top 2 categories
+        const topCategories = Object.keys(categorizedInterventions).slice(0, 3);
+        
+        // For each category, add top recommendations
+        topCategories.forEach(category => {
+          const recommendations = categorizedInterventions[category].slice(0, 3);
+          
+          recommendations.forEach(recommendation => {
+            const li = document.createElement('li');
+            
+            // Add checkbox to every recommendation
+            const id = 'rec-' + Math.random().toString(36).substring(7);
+            li.innerHTML = `
+              <div class="checkbox-recommendation">
+                <input type="checkbox" id="${id}" class="recommendation-checkbox" data-category="${category}">
+                <label for="${id}">${recommendation}</label>
+              </div>
+            `;
+            
+            immediateList.appendChild(li);
+          });
+        });
+        
+        // Add a "Routes" button
+        const routesBtn = document.createElement('button');
+        routesBtn.className = 'routes-btn';
+        routesBtn.textContent = 'Routes';
+        routesBtn.onclick = function() {
+          showRoutesMap();
+        };
+        
+        immediateList.appendChild(routesBtn);
+        
+      } else {
+        const li = document.createElement('li');
+        li.innerHTML = `
+          <div class="checkbox-recommendation">
+            <input type="checkbox" id="rec-default" class="recommendation-checkbox">
+            <label for="rec-default">Click a button above or describe what you're experiencing</label>
+          </div>
+        `;
+        immediateList.appendChild(li);
+      }
+    }
+
+    // Function to show the routes map
+    function showRoutesMap() {
+      // Get selected recommendations
+      const selectedCheckboxes = document.querySelectorAll('#individual .recommendation-checkbox:checked');
+      if (selectedCheckboxes.length === 0) {
+        alert('Please select at least one recommendation to generate routes.');
+        return;
+      }
+      
+      // Create or get routes panel
+      let routesPanel = document.getElementById('routes-panel');
+      if (!routesPanel) {
+        routesPanel = document.createElement('div');
+        routesPanel.id = 'routes-panel';
+        routesPanel.className = 'crisis-panel';
+        document.body.appendChild(routesPanel);
+      }
+      
+      // Get categories from selected recommendations
+      const selectedCategories = new Set();
+      selectedCheckboxes.forEach(checkbox => {
+        const category = checkbox.dataset.category;
+        if (category) selectedCategories.add(category);
+      });
+      
+      // Create the routes map
+      routesPanel.innerHTML = `
+        <div class="crisis-header">
+          <h2 class="crisis-title">Institutional Navigation Routes</h2>
+          <button class="close-panel" onclick="document.getElementById('routes-panel').style.display='none'; document.getElementById('panel-overlay').style.display='none';">&times;</button>
+        </div>
+        
+        <div class="routes-content">
+          <p>Below is the optimized path through ${selectedCheckboxes.length} selected actions across ${selectedCategories.size} university systems:</p>
+          
+          <div class="routes-map-container">
+            <svg id="routes-map-svg" width="100%" height="100%" viewBox="0 0 800 400">
+              <!-- SVG map will be dynamically generated -->
+            </svg>
+          </div>
+          
+          <div class="routes-metrics">
+            <div class="metrics-grid">
+              <div class="metric-item">
+                <div class="metric-value">${selectedCheckboxes.length}</div>
+                <div class="metric-label">Total Actions</div>
+              </div>
+              <div class="metric-item">
+                <div class="metric-value">${selectedCategories.size}</div>
+                <div class="metric-label">Departments Involved</div>
+              </div>
+              <div class="metric-item">
+                <div class="metric-value">${Math.min(21, selectedCheckboxes.length * 3)}</div>
+                <div class="metric-label">Estimated Days</div>
+              </div>
+              <div class="metric-item">
+                <div class="metric-value">${Math.round(100 - (20 / (selectedCategories.size + 1)))}%</div>
+                <div class="metric-label">Success Probability</div>
+              </div>
+            </div>
+          </div>
+          
+          <button class="start-routes-btn">
+            Start Coordination
+          </button>
+        </div>
+      `;
+      
+      // Generate the SVG map
+      generateRoutesMap([...selectedCategories]);
+      
+      // Add click handler for start button
+      const startBtn = routesPanel.querySelector('.start-routes-btn');
+      if (startBtn) {
+        startBtn.onclick = function() {
+          animateRoutes();
+        };
+      }
+      
+      // Show the panel
+      const overlay = document.getElementById('panel-overlay');
+      if (overlay) overlay.style.display = 'block';
+      routesPanel.style.display = 'block';
+    }
+
+    // Function to generate the routes map
+    function generateRoutesMap(categories) {
+      const svg = document.getElementById('routes-map-svg');
+      if (!svg) return;
+      
+      // Clear existing content
+      svg.innerHTML = '';
+      
+      // Office locations and colors
+      const offices = {
+        'student': { x: 400, y: 350, color: '#2196F3', label: 'Student' },
+        'healthcare': { x: 200, y: 100, color: '#F44336', label: 'Healthcare' },
+        'accommodation': { x: 350, y: 50, color: '#FF9800', label: 'DRC' },
+        'academic': { x: 500, y: 100, color: '#4CAF50', label: 'Academic Dept' },
+        'coordination': { x: 650, y: 200, color: '#9C27B0', label: 'Ombud' },
+        'mental': { x: 600, y: 300, color: '#2196F3', label: 'Mental Health' },
+        'financial': { x: 200, y: 300, color: '#795548', label: 'Financial Aid' },
+        'visa': { x: 150, y: 200, color: '#607D8B', label: 'Int\'l Office' }
+      };
+      
+      // Add student node
+      const studentNode = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+      studentNode.setAttribute('cx', offices.student.x);
+      studentNode.setAttribute('cy', offices.student.y);
+      studentNode.setAttribute('r', '20');
+      studentNode.setAttribute('fill', offices.student.color);
+      svg.appendChild(studentNode);
+      
+      // Add student label
+      const studentLabel = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+      studentLabel.setAttribute('x', offices.student.x);
+      studentLabel.setAttribute('y', offices.student.y + 35);
+      studentLabel.setAttribute('text-anchor', 'middle');
+      studentLabel.setAttribute('fill', '#000');
+      studentLabel.textContent = offices.student.label;
+      svg.appendChild(studentLabel);
+      
+      // Add case manager node if multiple categories
+      if (categories.length > 1) {
+        const cmNode = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+        cmNode.setAttribute('cx', 400);
+        cmNode.setAttribute('cy', 200);
+        cmNode.setAttribute('r', '25');
+        cmNode.setAttribute('fill', '#673AB7');
+        svg.appendChild(cmNode);
+        
+        // Add case manager label
+        const cmLabel = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+        cmLabel.setAttribute('x', 400);
+        cmLabel.setAttribute('y', 205);
+        cmLabel.setAttribute('text-anchor', 'middle');
+        cmLabel.setAttribute('fill', '#FFF');
+        cmLabel.textContent = 'CM';
+        svg.appendChild(cmLabel);
+        
+        // Connect student to case manager
+        const cmPath = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+        cmPath.setAttribute('d', `M${offices.student.x},${offices.student.y} L400,200`);
+        cmPath.setAttribute('stroke', '#000');
+        cmPath.setAttribute('stroke-width', '3');
+        cmPath.setAttribute('stroke-dasharray', '5,5');
+        cmPath.setAttribute('fill', 'none');
+        cmPath.id = 'path-to-cm';
+        svg.appendChild(cmPath);
+      }
+      
+      // Add selected office nodes and connect them
+      categories.forEach(category => {
+        if (offices[category]) {
+          // Add office node
+          const officeNode = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+          officeNode.setAttribute('cx', offices[category].x);
+          officeNode.setAttribute('cy', offices[category].y);
+          officeNode.setAttribute('r', '20');
+          officeNode.setAttribute('fill', offices[category].color);
+          svg.appendChild(officeNode);
+          
+          // Add office label
+          const officeLabel = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+          officeLabel.setAttribute('x', offices[category].x);
+          officeLabel.setAttribute('y', offices[category].y + 35);
+          officeLabel.setAttribute('text-anchor', 'middle');
+          officeLabel.setAttribute('fill', '#000');
+          officeLabel.textContent = offices[category].label;
+          svg.appendChild(officeLabel);
+          
+          // Connect to case manager or directly to student
+          if (categories.length > 1) {
+            // Connect to case manager
+            const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+            path.setAttribute('d', `M400,200 L${offices[category].x},${offices[category].y}`);
+            path.setAttribute('stroke', '#000');
+            path.setAttribute('stroke-width', '3');
+            path.setAttribute('stroke-dasharray', '5,5');
+            path.setAttribute('fill', 'none');
+            path.id = `path-to-${category}`;
+            svg.appendChild(path);
+          } else {
+            // Connect directly to student
+            const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+            path.setAttribute('d', `M${offices.student.x},${offices.student.y} L${offices[category].x},${offices[category].y}`);
+            path.setAttribute('stroke', '#000');
+            path.setAttribute('stroke-width', '3');
+            path.setAttribute('stroke-dasharray', '5,5');
+            path.setAttribute('fill', 'none');
+            path.id = `path-to-${category}`;
+            svg.appendChild(path);
+          }
+        }
+      });
+    }
+
+    // Function to animate the routes
+    function animateRoutes() {
+      // Animate the paths by changing dash array
+      const paths = document.querySelectorAll('#routes-map-svg path');
+      
+      // Reset animations
+      paths.forEach(path => {
+        path.style.strokeDasharray = '5,5';
+        path.style.animation = 'none';
+      });
+      
+      // Apply animation to each path with delay
+      paths.forEach((path, index) => {
+        setTimeout(() => {
+          path.style.stroke = '#4CAF50';
+          path.style.strokeDasharray = '0,0';
+          path.style.transition = 'stroke-dasharray 1.5s ease-in-out';
+        }, index * 700);
+      });
+      
+      // Add completion message after all animations
+      setTimeout(() => {
+        alert('Coordination route established! In a real implementation, this would notify all relevant offices and create a case management workflow.');
+      }, (paths.length * 700) + 1000);
+    }
+    
+    // Function to submit challenge
+    function submitChallenge() {
+      const challengeForm = document.createElement('div');
+      challengeForm.style.padding = '15px';
+      challengeForm.style.backgroundColor = '#f8f9fa';
+      challengeForm.style.border = '1px solid #dee2e6';
+      challengeForm.style.borderRadius = '5px';
+      challengeForm.style.marginBottom = '15px';
+      
+      challengeForm.innerHTML = `
+        <h4 style="margin-top: 0;">Submit Institutional Challenge</h4>
+        <p>Document a specific barrier or challenge you're experiencing:</p>
+        <select id="challenge-type" style="width: 100%; padding: 8px; margin-bottom: 10px;">
+          <option value="accommodation">Accommodation Denial/Delay</option>
+          <option value="coordination">Department Coordination Failure</option>
+          <option value="communication">Communication Breakdown</option>
+          <option value="access">Physical/Digital Access Barrier</option>
+          <option value="policy">Policy Gap or Conflict</option>
+        </select>
+        <textarea id="challenge-description" placeholder="Describe the challenge in detail..." style="width: 100%; padding: 8px; height: 100px; margin-bottom: 10px;"></textarea>
+        <div style="display: flex; justify-content: space-between;">
+          <button id="cancel-challenge" style="padding: 8px 15px; background-color: #6c757d; color: white; border: none; border-radius: 4px; cursor: pointer;">Cancel</button>
+          <button id="submit-challenge-form" style="padding: 8px 15px; background-color: #f44336; color: white; border: none; border-radius: 4px; cursor: pointer;">Submit</button>
+        </div>
+      `;
+      
+      // Get the hub panel
+      const hubPanel = document.getElementById('hub-panel');
+      if (!hubPanel) return;
+      
+      // Find submit button
+      const submitButton = hubPanel.querySelector('.submit-challenge-btn');
+      if (!submitButton) return;
+      
+      // Insert the form after the button
+      submitButton.parentNode.insertBefore(challengeForm, submitButton.nextSibling);
+      
+      // Hide the submit button while form is open
+      submitButton.style.display = 'none';
+      
+      // Add event listeners to form buttons
+      document.getElementById('cancel-challenge').addEventListener('click', function() {
+        challengeForm.remove();
+        submitButton.style.display = 'block';
+      });
+      
+      document.getElementById('submit-challenge-form').addEventListener('click', function() {
+        const type = document.getElementById('challenge-type').value;
+        const description = document.getElementById('challenge-description').value.trim();
+        
+        if (!description) {
+          alert('Please provide a description of the challenge.');
+          return;
+        }
+        
+        // Here you would typically send this data to a server
+        // For now, just show a confirmation
+        alert(`Challenge submitted! A case manager will review your ${type} challenge and contact you within 48 hours.`);
+        
+        // Remove form and show button again
+        challengeForm.remove();
+        submitButton.style.display = 'block';
+      });
+    }
+
+    // Document ready handler
+    document.addEventListener('DOMContentLoaded', function() {
+      try {
+        // Set up symptom buttons for individual tab
+        const buttons = document.querySelectorAll('#individual .symptom-button');
+        if (buttons.length > 0) {
+          buttons.forEach(button => {
+            button.addEventListener('click', function() {
+              // Toggle active state
+              this.classList.toggle('active');
+              
+              // Update recommendations based on selected systems
+              updateIndividualRecommendations();
+            });
+          });
+        }
+        
+        // Set up text area listener
+        const textarea = document.querySelector('#individual .custom-description');
+        if (textarea) {
+          const typingIndicator = document.querySelector('#individual .typing-indicator');
+          let typingTimer;
+          
+          textarea.addEventListener('keyup', function() {
+            // Show typing indicator
+            if (typingIndicator) {
+              typingIndicator.classList.add('visible');
+              typingIndicator.textContent = "Finding solutions for you...";
+            }
+            
+            clearTimeout(typingTimer);
+            typingTimer = setTimeout(function() {
+              // Update recommendations when typing stops
+              updateIndividualRecommendations();
+              
+              // Update typing indicator
+              if (typingIndicator) {
+                if (textarea.value.trim() !== '') {
+                  typingIndicator.textContent = "Analysis complete";
+                  setTimeout(() => {
+                    typingIndicator.classList.remove('visible');
+                  }, 1500);
+                } else {
+                  typingIndicator.classList.remove('visible');
+                }
+              }
+            }, 1000);
+          });
+        }
+        
+        // Set up sliders
+        const positionSlider = document.getElementById('position-slider');
+        const positionSliderValue = document.getElementById('position-slider-value');
+        const positionMarker = document.getElementById('position-marker');
+        
+        if (positionSlider && positionSliderValue && positionMarker) {
+          positionSlider.addEventListener('input', function() {
+            const value = parseInt(this.value);
+            positionSliderValue.textContent = value >= 0 ? `+${value}` : value;
+            
+            // Calculate position (50% is center, each unit is 5%)
+            const markerPos = 50 + (value * 5);
+            positionMarker.style.left = `${markerPos}%`;
+          });
+          
+          // Make gauge clickable
+          const gauge = document.querySelector('.position-gauge');
+          if (gauge) {
+            gauge.addEventListener('click', function(event) {
+              const rect = gauge.getBoundingClientRect();
+              const clickPosition = event.clientX - rect.left;
+              const percentage = (clickPosition / rect.width) * 100;
+              
+              // Convert percentage to position value (-10 to +10)
+              const position = Math.round(((percentage - 50) / 5));
+              
+              // Update marker position
+              positionMarker.style.left = `${percentage}%`;
+              
+              // Update position value and slider
+              positionSlider.value = position;
+              positionSliderValue.textContent = position >= 0 ? `+${position}` : position;
+            });
+          }
+        }
+        
+        const variabilitySlider = document.getElementById('variability-slider');
+        const variabilitySliderValue = document.getElementById('variability-slider-value');
+        
+        if (variabilitySlider && variabilitySliderValue) {
+          variabilitySlider.addEventListener('input', function() {
+            variabilitySliderValue.textContent = `±${this.value}`;
+          });
+        }
+        
+        // Set up event counter
+        const calculateBtn = document.getElementById('calculate-from-events');
+        if (calculateBtn) {
+          calculateBtn.addEventListener('click', function() {
+            const eventCount = document.getElementById('event-count');
+            if (!eventCount) return;
+            
+            const count = parseInt(eventCount.value);
+            
+            // Calculate only variability based on event count
+            let variability;
+            
+            if (count === 0) {
+              variability = 2;
+            } else if (count < 3) {
+              variability = 4;
+            } else if (count < 7) {
+              variability = 6;
+            } else if (count < 12) {
+              variability = 8;
+            } else {
+              variability = 10;
+            }
+            
+            // Update only variability slider and value
+            if (variabilitySlider) variabilitySlider.value = variability;
+            if (variabilitySliderValue) variabilitySliderValue.textContent = `±${variability}`;
+          });
+        }
+
+        // Set up Apply Changes button
+        const applyChangesBtn = document.getElementById('apply-hub-changes');
+        if (applyChangesBtn) {
+          applyChangesBtn.addEventListener('click', function() {
+            // Get values from sliders
+            const posValue = parseInt(positionSlider.value);
+            const varValue = parseInt(variabilitySlider.value);
+            
+            // Update position and variability displays
+            const hubPosition = document.getElementById('individual-hub-position');
+            const hubVariability = document.getElementById('individual-hub-variability');
+            
+            if (hubPosition) hubPosition.textContent = posValue >= 0 ? `+${posValue}` : posValue;
+            if (hubVariability) hubVariability.textContent = `±${varValue}`;
+            
+            // Update hub visualization
+            updateIndividualHubVisualization(posValue, varValue);
+            
+            // Close the panel
+            closePanel('hub-panel');
+          });
+        }
+        
+        // Set up Submit Challenge button
+        const submitChallengeBtn = document.querySelector('.submit-challenge-btn');
+        if (submitChallengeBtn) {
+          submitChallengeBtn.addEventListener('click', submitChallenge);
+        }
+        
+        // Set up Research References button
+        const referencesBtn = document.getElementById('individual-research-btn');
+        const referencesPanel = document.getElementById('individual-research-panel');
+        
+        if (referencesBtn && referencesPanel) {
+          referencesBtn.addEventListener('click', function() {
+            if (referencesPanel.style.display === 'block') {
+              referencesPanel.style.display = 'none';
+              this.textContent = 'References ▼';
+            } else {
+              referencesPanel.style.display = 'block';
+              this.textContent = 'References ▲';
+            }
+          });
+        }
+        
+        // Make sure the research panel content is populated
+        if (referencesPanel) {
+          referencesPanel.innerHTML = `
+            <h4>Research and Sources</h4>
+            
+            <p><strong>I: Initial Crisis (January 2023 - Diagnosis)</strong><br>
+  When you grow up watching gas flares turn night into toxic day in Nigeria's Niger Delta, you
+  learn early that systems meant to bring light can destroy life. Regardless, you also learn
+  something more powerful, how communities innovate to thrive despite systemic barriers. I am
+  Chiziterem Onyenekwe, and my journey from setting the highest academic record in my
+  Nigerian university department's history to fighting for disability rights at the University of
+  Kentucky isn't just about institutional failure. It's about transforming systemic violence into
+  revolutionary change.</p>
+  
+  <p>I arrived at Kentucky's Biomedical Engineering PhD program already fluent in adaptation,
+  daughter of a Biafran war veteran, graduate of a nation where scarcity breeds innovation,
+  international scholar selected by EducationUSA. Maintaining a 3.9 GPA while navigating
+  American academia showcased not just excellence, but resilience. I didn't know then that my
+  intersectional identity as an African, international and disabled woman in STEM would soon
+  collide with systemic discrimination in ways that would both endanger and transform me.</p>
+  
+  <p><strong>II: Healthcare Fragmentation (September 2023 Suicide attempt)</strong><br>
+  I did not know what to do, I could not even afford $50 dollar a session especially when FND
+  means no knowledge or cure guarantee. My friend encouraged me, and I found an external
+  therapist who took me on charity. She confirmed that I was Autistic and being undiagnosed
+  contributed to cPTSD and FND exacerbation.</p>
+  
+  <p>What followed was my final initiation into the reality behind the illusion of care and support. I was stripped into a hospital gown at Good Samaritan Hospital, then handcuffed and transported by sheriffs to Eastern State Hospital in the middle of the night. I looked out the window as I wondered how on earth, I had gotten to this point of being taken like a criminal to an unfamiliar location in a foreign country.</p>
+  
+  <p><strong>III: Academic Impact (Fall 2023 - Spring 2024)</strong><br>
+  It was at this time I realized and accepted that I needed to register with the DRC to get academic
+  support. I registered with the Disability Resource Center (DRC) in fall 2023 to obtain academic accommodations. 
+  Despite registering with the Disability Resource Center, I discovered that being a disabled
+  graduate student meant navigating another endless maze of fragmented offices. Accommodation
+  meant having to use my limited capacity to coordinate offices to get some flexibility which ends
+  up being spent on coordinating.</p>
+  
+  <p>In February 2024, my PI ended my research assistantship without any
+  official accommodation deliberation. I would be paid till June "and afterwards?", I asked my PI
+  and he said "I don't know". The
+  Director of Graduate Studies (DGS) came in later in May 2024, and they both told me that a
+  master's was the best option I had. They both had no interest in cooperating with me to find a
+  way to get what I came for, I was not asked what I wanted. My PI was done with me, my DGS
+  couldn't care less, the message was clear: get out, PhD research in UKY is no place for people
+  like you.</p>
+  
+  <p><strong>IV: Institutional Response (2024-2025)</strong><br>
+  As I looked around the institution for any form of help because the DGS claimed he could not
+  approve my fellowship and I had no assistantship or any idea of exactly how I was capable, a
+  concerned staff triggered an investigation with the Office of Equal Opportunity. Here is how the deflection merry-go-round began...</p>
+  
+  <p>The so-called investigation continued without regard for protection and supporting of the student
+  who was potentially being discriminated against. Like a police investigation with the prime
+  witness left to roam around in the same neighborhood of the crime; very trustworthy according
+  to UKY standards.</p>
+  
+  <p>As you can imagine, it felt like hearing echoes of my voice in a drum after being told I could find
+  water there. The ADA Compliance Office refused to implement DRC compliance and asked me
+  to report the same problem in the same breath, another dead end.</p>
+  
+  <p><strong>V: CONCLUSION</strong><br>
+  University of Kentucky almost killed me, but I am still here fighting for everyone who believes
+  in me and themselves, that everyone's potential should not be abandoned in light of their
+  struggles. Struggles are what makes us human and brings the best out of us. I am here now
+  saying I will do my PhD research to design products for acute recovery from dissociative or
+  shutdown states in emergency situations, sediment the answers to the why and how of FND and
+  co-occurring conditions, and most importantly, leave a legacy on which no other disabled
+  graduate student would ever have to suffer like I did because of institutional fragmentation and
+  neglect.</p>
+`;
+        }
+        
+        // Initial update of recommendations
+        updateIndividualRecommendations();
+        
+      } catch (error) {
+        console.log("Error during initialization:", error);
+      }
+    });
+
+    // Initialize charts for the individual tab
+function initializeCharts() {
+  // Check if Chart.js is available
+  if (typeof Chart === 'undefined') {
+    console.error("Chart.js is not available. Charts will not be displayed.");
+    return;
+  }
+
+  // Create Response Times Chart
+  const responseCtx = document.getElementById('responseTimesChart');
+  if (responseCtx) {
+    new Chart(responseCtx, {
+      type: 'bar',
+      data: {
+        labels: ['Healthcare', 'DRC', 'Academic', 'Grad School', 'Mental Health', 'OEO'],
+        datasets: [{
+          label: 'Initial Response Time (days)',
+          data: [14, 7, 21, 28, 10, 45],
+          backgroundColor: '#1565c0'
+        }, {
+          label: 'Solution Time (days)',
+          data: [30, 60, 90, 180, 45, 147],
+          backgroundColor: '#f44336'
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+          y: {
+            beginAtZero: true,
+            title: {
+              display: true,
+              text: 'Days'
+            }
+          }
+        },
+        plugins: {
+          title: {
+            display: true,
+            text: 'Department Response vs. Solution Times'
+          }
+        }
+      }
+    });
+  }
+
+  // Create Failures by Department Chart
+  const failuresCtx = document.getElementById('failuresByDeptChart');
+  if (failuresCtx) {
+    new Chart(failuresCtx, {
+      type: 'pie',
+      data: {
+        labels: ['Healthcare', 'DRC', 'Academic', 'Grad School', 'Mental Health', 'OEO', 'Admin', 'ADA'],
+        datasets: [{
+          data: [25, 15, 20, 15, 10, 5, 5, 5],
+          backgroundColor: [
+            '#f44336', // Healthcare
+            '#ff9800', // DRC
+            '#ffc107', // Academic
+            '#4caf50', // Grad School
+            '#2196f3', // Mental Health
+            '#9c27b0', // OEO
+            '#795548', // Admin
+            '#607d8b'  // ADA
+          ]
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          title: {
+            display: true,
+            text: 'System Failures by Department'
+          },
+          legend: {
+            position: 'right'
+          }
+        }
+      }
+    });
+  }
+
+  // Create Coordination Chart
+  const coordCtx = document.getElementById('coordinationChart');
+  if (coordCtx) {
+    new Chart(coordCtx, {
+      type: 'bar',
+      data: {
+        labels: ['Healthcare', 'DRC', 'Academic', 'Grad School', 'Mental Health', 'OEO', 'Admin'],
+        datasets: [{
+          label: 'Coordination Attempts',
+          data: [12, 8, 7, 5, 9, 6, 14],
+          backgroundColor: '#4caf50'
+        }, {
+          label: 'Successful Coordinations',
+          data: [2, 3, 1, 0, 1, 0, 2],
+          backgroundColor: '#ff9800'
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+          y: {
+            beginAtZero: true,
+            title: {
+              display: true,
+              text: 'Count'
+            }
+          }
+        },
+        plugins: {
+          title: {
+            display: true,
+            text: 'Coordination Attempts vs. Successful Coordinations'
+          }
+        }
+      }
+    });
+  }
+}
+
+// Call this in the document ready handler
+document.addEventListener('DOMContentLoaded', function() {
+  // Other initialization code...
+  
+  // Initialize charts
+  initializeCharts();
+});
+  </script>
+</body>
+</html>
